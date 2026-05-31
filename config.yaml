@@ -13,4 +13,4 @@ paths:
   logs_dir: data/logs
 
 harness:
-  default_pack_id: media
+  default_pack_id: archive

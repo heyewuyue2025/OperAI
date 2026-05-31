@@ -419,13 +419,10 @@ def build_campaign_markdown(
     动态章节由 DAG 决定：DAG 中每个 Agent 对应一个业务章节；
     「合规与审核记录」与「运行轨迹附录」固定在末尾。
     """
-    pack_name = {"media": "媒体运营", "internet": "互联网运营", "finance": "金融运营"}.get(pack_id, pack_id)
-
     lines: list[str] = []
     lines.append(f"# OperAI 运营战役包")
     lines.append("")
     lines.append(f"> **任务**：{title}")
-    lines.append(f"> **行业 Pack**：{pack_name}（`{pack_id}`）")
     lines.append(f"> **编排链路**：{' → '.join(dag)}")
     lines.append(f"> **task_id**：`{task_id}` · **run_id**：`{run_id}`")
     lines.append("")
@@ -493,7 +490,7 @@ def build_campaign_markdown(
     lines.append("")
     lines.append("- [ ] 已核对事实与数据来源")
     lines.append("- [ ] 已处理风险标记与敏感表述")
-    lines.append("- [ ] 客户适当性/合规已审（金融 Pack 必填）")
+    lines.append("- [ ] 已确认平台规则、发布时间和风险提示")
     lines.append("")
 
     # ---- 运行轨迹附录 ----
@@ -519,7 +516,7 @@ def build_campaign_markdown(
     lines.append("---")
     lines.append("")
     lines.append(
-        f"*本战役包由 OperAI Harness 自动生成（Pack: `{pack_id}` · DAG: {' → '.join(dag)}）。发布前请人工复核全部内容。*"
+        f"*本战役包由 OperAI Harness 自动生成（链路: {' → '.join(dag)}）。发布前请人工复核全部内容。*"
     )
 
     return "\n".join(lines)
@@ -547,8 +544,6 @@ def build_campaign_docx_bytes(
     except ImportError as e:
         raise RuntimeError("请安装 python-docx：pip install python-docx") from e
 
-    pack_name = {"media": "媒体运营", "internet": "互联网运营", "finance": "金融运营"}.get(pack_id, pack_id)
-
     doc = Document()
     style = doc.styles["Normal"]
     style.font.name = "Microsoft YaHei"
@@ -556,7 +551,6 @@ def build_campaign_docx_bytes(
 
     doc.add_heading("OperAI 运营战役包", level=0)
     doc.add_paragraph(f"任务：{title}")
-    doc.add_paragraph(f"行业 Pack：{pack_name}（{pack_id}）")
     doc.add_paragraph(f"编排链路：{' → '.join(dag)}")
     doc.add_paragraph(f"task_id: {task_id}")
     doc.add_paragraph(f"run_id: {run_id}")
@@ -635,7 +629,7 @@ def build_campaign_docx_bytes(
     doc.add_heading("人工审核状态", level=2)
     doc.add_paragraph("☐ 已核对事实与数据来源")
     doc.add_paragraph("☐ 已处理风险标记与敏感表述")
-    doc.add_paragraph("☐ 客户适当性/合规已审（金融 Pack 必填）")
+    doc.add_paragraph("☐ 已确认平台规则、发布时间和风险提示")
 
     # ---- 运行轨迹附录 ----
     doc.add_heading(f"{chapter_idx}. 运行轨迹附录", level=1)
@@ -659,7 +653,7 @@ def build_campaign_docx_bytes(
 
     doc.add_paragraph("")
     doc.add_paragraph(
-        f"本战役包由 OperAI Harness 自动生成（Pack: {pack_id} · DAG: {' → '.join(dag)}）。发布前请人工复核全部内容。"
+        f"本战役包由 OperAI Harness 自动生成（链路: {' → '.join(dag)}）。发布前请人工复核全部内容。"
     )
 
     import io

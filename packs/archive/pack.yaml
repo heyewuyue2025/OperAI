@@ -1,6 +1,6 @@
-id: media
-name: 媒体运营 Pack
-description: 热点响应 · 多平台内容 · 渠道排期
+id: archive
+name: 通用档案流程
+description: 任务建档 · 内容生成 · 渠道排期
 default_dag:
   - D
   - C

@@ -73,7 +73,7 @@ python -m pytest -q
 
 ## 配置
 
-- `config.yaml`：`paths.sqlite` / `paths.logs_dir`、`demo_mode`、`llm`、`harness.default_pack_id` / `harness.use_dag_runner`。
+- `config.yaml`：`paths.sqlite` / `paths.logs_dir`、`demo_mode`、`llm`、`harness.default_pack_id` / `harness.use_dag_runner`（当前默认 `archive`）。
 - `config/sensitive_words.txt`：敏感词表；可在 **设置** 页编辑并写回文件或仅本会话生效。
 - **内置三组样例（PRD §9.1）**：`samples/sample_campus.json`、`sample_culture.json`、`sample_brand.json`；侧栏一键载入。
 - **导出**：运行成功后，在「导出」Tab 下载 **Markdown** 或 **Word（.docx）**；「内容」Tab 内修改文案后，导出会使用**编辑后**文本。
@@ -87,12 +87,12 @@ python -m pytest -q
 
 ## Harness 架构（W1）
 
-W1 将硬编码 **D→C→N** 升级为可配置 **Pack + 插件注册表 + DAG** 骨架（默认仍跑 MEDIA Pack 的 `D→C→N` Mock/LLM）。
+W1 将硬编码 **D→C→N** 升级为可配置 **流程 + 插件注册表 + DAG** 骨架（默认走 `archive` 的 `D→C→N` Mock/LLM 链路）。
 
 | 组件 | 路径 | 职责 |
 |------|------|------|
-| **Pack** | `packs/media/pack.yaml` | 默认 DAG、平台、校验策略 |
-| **Pack Loader** | `src/harness/pack_loader.py` | `load_pack` / `list_packs` |
+| **Archive Flow** | `packs/archive/pack.yaml` | 默认 DAG、平台、校验策略 |
+| **Flow Loader** | `src/harness/pack_loader.py` | `load_pack` / `list_packs` |
 | **Plugin Registry** | `src/harness/plugin_registry.py` | 十 Agent 注册与 `invoke` |
 | **DAG Runner** | `src/harness/dag_runner.py` | 按 DAG 顺序执行并注入 `upstream` |
 | **Verify Gate** | `src/harness/verify_gate.py` | 一致性 + 敏感词，决定是否 `block_export` |

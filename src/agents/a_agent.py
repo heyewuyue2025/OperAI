@@ -168,7 +168,6 @@ def run_a(
         return deepcopy(MOCK)
 
     raw_input = str(context.get("raw_input", ""))
-    pack_id = str(context.get("pack_id", ""))
     upstream = context.get("upstream") or {}
     d_out = upstream.get("D") or {}
     u_out = upstream.get("U") or {}
@@ -180,9 +179,6 @@ def run_a(
         "budget_hints 为对象数组，每项含 channel、suggestion、percent_range（如 20%-30%）。"
         "roi_estimate 为对象，含 summary、assumptions（字符串数组）、confidence（low/medium/high）。"
     )
-    if pack_id == "finance":
-        system += " 当前为金融场景：活动方案需符合合规要求，禁止诱导性表述，风险提示完整。"
-
     payload: dict[str, Any] = {"raw_input": raw_input}
     if d_out:
         payload["d_insights"] = d_out.get("insights") or []

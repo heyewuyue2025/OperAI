@@ -1,4 +1,4 @@
-"""Pack 加载：MEDIA 默认 DAG D→C→N。"""
+"""流程加载：archive 默认 DAG D→C→N。"""
 from __future__ import annotations
 
 from pathlib import Path
@@ -8,27 +8,27 @@ import pytest
 ROOT = Path(__file__).resolve().parents[1]
 
 
-def test_load_media_pack() -> None:
+def test_load_archive_pack() -> None:
     from src.harness.pack_loader import load_pack
 
-    pack = load_pack(ROOT, "media")
-    assert pack.id == "media"
+    pack = load_pack(ROOT, "archive")
+    assert pack.id == "archive"
     assert pack.name
     assert "weibo" in pack.default_platforms
 
 
-def test_media_default_dag_is_dcn() -> None:
+def test_archive_default_dag_is_dcn() -> None:
     from src.harness.pack_loader import load_pack
 
-    pack = load_pack(ROOT, "media")
+    pack = load_pack(ROOT, "archive")
     assert pack.default_dag == ["D", "C", "N"]
 
 
-def test_list_packs_includes_media() -> None:
+def test_list_packs_includes_archive() -> None:
     from src.harness.pack_loader import list_packs
 
     ids = [p.id for p in list_packs(ROOT)]
-    assert "media" in ids
+    assert "archive" in ids
 
 
 def test_load_unknown_pack_raises() -> None:

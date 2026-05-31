@@ -93,7 +93,7 @@ def _resolve_pack_and_dag(
     cfg: dict[str, Any],
 ) -> tuple[str, list[str]]:
     harness = cfg.get("harness") or {}
-    default_pack = str(harness.get("default_pack_id", "media"))
+    default_pack = str(harness.get("default_pack_id", "archive"))
     rows = query_all(conn, "SELECT pack_id, dag_json FROM tasks WHERE id = ?", (task_id,))
     pack_id = default_pack
     dag: list[str] | None = None
@@ -122,7 +122,7 @@ def upsert_task(
     brand_voice: str,
     platforms: list[str],
     raw_input: str,
-    pack_id: str = "media",
+    pack_id: str = "archive",
     dag_json: str | None = None,
 ) -> None:
     ts = _now()

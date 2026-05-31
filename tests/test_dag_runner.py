@@ -44,7 +44,7 @@ def test_run_dag_mock_dcn() -> None:
         ["D", "C", "N"],
         task_id=task_id,
         run_id=run_id,
-        pack_id="media",
+        pack_id="archive",
         brand_voice="克制",
         platforms=["weibo", "xhs"],
         raw_input="DAG 单测素材，校园音乐节。",

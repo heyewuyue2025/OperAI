@@ -63,11 +63,11 @@ def _column_exists(conn: sqlite3.Connection, table: str, column: str) -> bool:
 
 
 def _migrate_v2(conn: sqlite3.Connection) -> None:
-    """W1：tasks/runs 增加 pack_id、tasks 增加 dag_json（幂等）。"""
+    """W1：tasks/runs 增加流程 ID、tasks 增加 dag_json（幂等）。"""
     additions = [
-        ("tasks", "pack_id", "TEXT DEFAULT 'media'"),
+        ("tasks", "pack_id", "TEXT DEFAULT 'archive'"),
         ("tasks", "dag_json", "TEXT"),
-        ("runs", "pack_id", "TEXT DEFAULT 'media'"),
+        ("runs", "pack_id", "TEXT DEFAULT 'archive'"),
     ]
     for table, column, typedef in additions:
         if not _column_exists(conn, table, column):

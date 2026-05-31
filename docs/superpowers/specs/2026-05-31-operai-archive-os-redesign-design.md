@@ -14,11 +14,11 @@ OperAI is not presented as a generic AI tool collection. It is a research archiv
 
 Core concepts:
 
-- **Task File**: an operations assignment, containing raw material, pack choice, platforms, DAG, and title.
-- **Agent Index**: the ten Agent capabilities as searchable research instruments.
-- **Run Dossier**: one execution record, with status, steps, generated outputs, timing, and fallback markers.
-- **Evidence Chain**: trace from raw input to metrics, insights, drafts, scheduling, validation, and export readiness.
-- **Export Vault**: final Markdown/Docx artifacts presented as archived deliverables.
+- **任务案卷**: an operations assignment, containing raw material, platforms, DAG, and title.
+- **智能体索引**: the ten Agent capabilities as searchable research instruments.
+- **运行档案**: one execution record, with status, steps, generated outputs, timing, and fallback markers.
+- **证据链**: trace from raw input to metrics, insights, drafts, scheduling, validation, and export readiness.
+- **导出库**: final Markdown/Docx artifacts presented as archived deliverables.
 
 ## Aesthetic Direction
 
@@ -60,10 +60,10 @@ Constraints:
 Replace the current long marketing page with an archive entrance:
 
 1. Hero: `OperAI Archive OS`, case number, one-line value proposition, primary action to open the workbench.
-2. Archive Overview: Task Files, Agent Index, Run Dossiers, Evidence Chain, Export Vault.
+2. Archive Overview: 任务案卷、智能体索引、运行档案、证据链、导出库。
 3. Agent Index: ten Agents as archive entries, not marketing cards.
 4. Evidence Model: show D/C/N and Verify Gate as a traceable chain.
-5. Deployment/API section: present FastAPI, Webhook, Pack, Mock/LLM mode as system capabilities.
+5. Deployment/API section: present FastAPI, Webhook, Mock/LLM mode, export, and logs as system capabilities.
 
 ### Agent Pages
 
@@ -85,11 +85,11 @@ All ten pages share one visual grammar but may vary accent metadata and example 
 
 Rebuild the workbench around archive navigation:
 
-- **Task File**: raw input, title, platforms, pack/DAG, run button.
-- **Agent Index**: select a single Agent or inspect all ten Agent capabilities.
-- **Run Dossier**: latest run outputs, step status, duration, fallback warnings.
-- **Evidence Chain**: extracted metrics, evidence spans, validation issues, sensitive scan, JSONL trace summary.
-- **Export Vault**: Markdown/Docx export, edited copy support, archive status.
+- **任务案卷**: raw input, title, platforms, DAG, run button.
+- **智能体索引**: select a single Agent or inspect all ten Agent capabilities.
+- **运行档案**: latest run outputs, step status, duration, fallback warnings.
+- **证据链**: extracted metrics, evidence spans, validation issues, sensitive scan, JSONL trace summary.
+- **导出库**: Markdown/Docx export, edited copy support, archive status.
 - **Settings**: Mock/LLM, model split, temperature, short output, skip review, sensitive words.
 
 Existing functionality should be preserved unless intentionally replaced by the archive model.
@@ -138,7 +138,7 @@ Backend changes are allowed if they help the new product model.
 Acceptable changes:
 
 - Add helper functions to query recent runs, tasks, artifacts, and trace summaries for Streamlit.
-- Add lightweight view models for Task File, Run Dossier, Evidence Chain, and Export Vault.
+- Add lightweight view models for 任务案卷、运行档案、证据链 and 导出库。
 - Extend API responses with archive-oriented metadata.
 - Add migrations only when needed and keep them idempotent.
 - Add tests for any new data transformation or schema behavior.
@@ -187,8 +187,8 @@ Visual verification:
 - Desktop homepage.
 - Mobile homepage.
 - At least one Agent page.
-- Streamlit workbench primary Task File screen.
-- Run Dossier/Evidence Chain state after a Mock run if feasible.
+- Streamlit workbench primary 任务案卷 screen.
+- 运行档案/证据链 state after a Mock run if feasible.
 
 ## Success Criteria
 
@@ -200,4 +200,3 @@ The redesign succeeds when:
 - Motion is memorable and technical without damaging usability.
 - Existing core capabilities still work: Agent invocation, Mock mode, logs, artifacts, export, settings.
 - Tests pass or any remaining failures are clearly explained.
-

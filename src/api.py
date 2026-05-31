@@ -6,7 +6,7 @@
   GET  /api/v1/runs/{run_id}/trace  查询步骤轨迹
   POST /api/v1/runs/{run_id}/export  导出战役包
   GET  /api/v1/agents            列出 Agent 插件
-  GET  /api/v1/packs             列出行业 Pack
+  GET  /api/v1/packs             列出可用流程
 
 认证: X-OperAI-API-Key 请求头
 多租户: X-OperAI-Tenant 请求头（可选，缺省 default）
@@ -41,7 +41,7 @@ _conn = open_connection(ROOT, _cfg)
 class RunRequest(BaseModel):
     task_id: str | None = Field(default=None, description="复用已有任务 ID，不传则新建")
     title: str = Field(default="API Run", max_length=200)
-    pack_id: str = Field(default="media", description="行业 Pack ID")
+    pack_id: str = Field(default="archive", description="流程 ID")
     brand_voice: str = Field(default="")
     platforms: list[str] = Field(default=["weibo", "wechat", "xhs"])
     raw_input: str = Field(..., min_length=1, description="素材正文")
@@ -223,7 +223,7 @@ def export_run(run_id: str, request: Request, format: str = "markdown"):
 
     task_rows = query_all(_conn, "SELECT title, pack_id, dag_json FROM tasks WHERE id=?", (row["task_id"],))
     title = str(task_rows[0]["title"]) if task_rows else "未命名"
-    pack_id = str(task_rows[0]["pack_id"]) if task_rows and task_rows[0].get("pack_id") else "media"
+    pack_id = str(task_rows[0]["pack_id"]) if task_rows and task_rows[0].get("pack_id") else "archive"
     dag = json.loads(task_rows[0]["dag_json"]) if task_rows and task_rows[0].get("dag_json") else ["D", "C", "N"]
 
     md = build_campaign_markdown(

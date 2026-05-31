@@ -20,7 +20,7 @@
 - `frontend/index.html`: Archive Entrance homepage.
 - `frontend/*-agent.html`: ten Agent File pages using a shared structure.
 - `frontend/streamlit-theme.css`: Archive Desk skin for Streamlit controls and panels.
-- `app.py`: Streamlit Archive Desk restructure with Task File, Agent Index, Run Dossier, Evidence Chain, Export Vault, and Settings tabs.
+- `app.py`: Streamlit Archive Desk restructure with 任务案卷、智能体索引、运行档案、证据链、导出库 and Settings tabs.
 - `docs/superpowers/specs/2026-05-31-operai-archive-os-redesign-design.md`: source spec, already written.
 
 ## Task 1: Initialize Repository Baseline
@@ -93,8 +93,8 @@ def test_load_run_dossier_returns_steps_and_artifacts(tmp_path, conn_with_archiv
 def test_build_evidence_chain_extracts_metrics_and_trace(tmp_path, conn_with_archive_rows):
     chain = build_evidence_chain(conn_with_archive_rows, tmp_path, "run-1")
     assert chain["trace_events"][0]["event"] == "run_start"
-    assert chain["nodes"][0]["label"] == "Raw Input"
-    assert chain["nodes"][-1]["label"] == "Export Readiness"
+    assert chain["nodes"][0]["label"] == "原始素材"
+    assert chain["nodes"][-1]["label"] == "导出就绪"
 
 
 def test_build_archive_summary_counts_runs(tmp_path, conn_with_archive_rows):
@@ -203,7 +203,7 @@ def load_run_dossier(conn: sqlite3.Connection, logs_dir: Path, run_id: str) -> d
         "task_id": run["task_id"],
         "status": run["status"],
         "mock": bool(run["mock"]),
-        "pack_id": run["pack_id"] if "pack_id" in run.keys() else "media",
+        "pack_id": run["pack_id"] if "pack_id" in run.keys() else "archive",
         "started_at": run["started_at"],
         "finished_at": run["finished_at"],
         "error_message": run["error_message"],
@@ -221,12 +221,12 @@ def build_evidence_chain(conn: sqlite3.Connection, logs_dir: Path, run_id: str) 
     dossier = load_run_dossier(conn, logs_dir, run_id)
     outputs = dossier.get("agent_outputs") or {}
     nodes = [
-        {"label": "Raw Input", "status": "captured"},
+        {"label": "原始素材", "status": "captured"},
         {"label": "Metrics", "status": "ready" if outputs.get("D", {}).get("_metrics") else "implicit"},
         {"label": "D Insight", "status": "ready" if outputs.get("D") else "missing"},
         {"label": "C Draft", "status": "ready" if outputs.get("C") else "missing"},
         {"label": "N Schedule", "status": "ready" if outputs.get("N") else "missing"},
-        {"label": "Export Readiness", "status": "ready" if dossier.get("status") in {"success", "need_review"} else "blocked"},
+        {"label": "导出就绪", "status": "ready" if dossier.get("status") in {"success", "need_review"} else "blocked"},
     ]
     return {"run_id": run_id, "nodes": nodes, "trace_events": dossier.get("trace_events", [])}
 
@@ -332,10 +332,10 @@ Homepage sections:
 
 ```text
 Archive Hero
-Archive System Map
-Agent Index
-Evidence Chain
-Deployment Ledger
+档案系统地图
+智能体索引
+证据链
+部署台账
 Final Vault CTA
 ```
 
@@ -349,7 +349,7 @@ Role In Archive
 Input Ledger
 Output Ledger
 Validation Rules
-Example Dossier
+示例档案
 Related Chain
 Workbench CTA
 ```
@@ -400,16 +400,16 @@ Preserve existing imports and execution behavior, but reorganize UI into:
 
 ```python
 tabs = st.tabs([
-    "Task File",
-    "Agent Index",
-    "Run Dossier",
-    "Evidence Chain",
-    "Export Vault",
+    "任务案卷",
+    "智能体索引",
+    "运行档案",
+    "证据链",
+    "导出库",
     "Settings",
 ])
 ```
 
-Task File runs selected Agent through `invoke()` as currently done. Run Dossier renders `last_result`. Evidence Chain renders metrics and trace summaries. Export Vault uses existing `build_campaign_markdown` and Docx helpers.
+任务案卷触发当前智能体链路。运行档案渲染 `last_result`。证据链渲染 metrics and trace summaries。导出库 uses existing `build_campaign_markdown` and Docx helpers.
 
 - [ ] **Step 3: Add archive view integration**
 
@@ -487,8 +487,8 @@ Expected:
 - Motion visible on homepage.
 - Mouse scan/tilt does not block clicks.
 - Workbench can run one Mock Agent.
-- Run Dossier and Evidence Chain show useful state.
-- Export Vault still provides Markdown/Docx content.
+- 运行档案 and 证据链 show useful state.
+- 导出库 still provides Markdown/Docx content.
 
 - [ ] **Step 4: Final commit**
 
@@ -500,4 +500,3 @@ git commit -m "polish: verify archive os redesign"
 ```
 
 Expected: commit if polish changes exist; otherwise report clean tree.
-

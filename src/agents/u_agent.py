@@ -120,7 +120,6 @@ def run_u(
 
     raw_input = str(context.get("raw_input", ""))
     brand_voice = str(context.get("brand_voice", ""))
-    pack_id = str(context.get("pack_id", ""))
     upstream = context.get("upstream") or {}
     d_out = upstream.get("D") or {}
 
@@ -131,16 +130,9 @@ def run_u(
         "retention_actions 为对象数组，每项含 segment、action、channel。"
         "churn_risks 为字符串数组，描述可能的流失风险。"
     )
-    if pack_id == "finance":
-        system += (
-            " 当前为金融场景：分群需关注风险偏好与适当性管理；"
-            "触达建议需符合合规要求，禁止使用诱导性或承诺收益的表述。"
-        )
-
     payload: dict[str, Any] = {
         "raw_input": raw_input,
         "brand_voice": brand_voice,
-        "pack_id": pack_id,
     }
     if d_out:
         payload["d_insights"] = d_out.get("insights") or []

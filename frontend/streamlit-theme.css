@@ -2,7 +2,7 @@
   --oa-paper: #f7f1e5;
   --oa-paper-2: #eadcc4;
   --oa-ink: #17130f;
-  --oa-archive: #766653;
+  --oa-archive: #514737;
   --oa-line: rgba(23,19,15,.20);
   --oa-red: #bd351f;
   --oa-red-2: #e05232;
@@ -27,6 +27,14 @@
   font-family: var(--oa-sans) !important;
 }
 
+.stApp h1, .stApp h2, .stApp h3, .stApp h4,
+.stApp p, .stApp li, .stApp label,
+.stMarkdown, .stCaptionContainer,
+[data-testid="stMarkdownContainer"],
+[data-testid="stWidgetLabel"] {
+  color: var(--oa-ink) !important;
+}
+
 [data-testid="stHeader"] { background: transparent !important; }
 [data-testid="stToolbar"] { display: none !important; }
 .block-container { padding-top: 2.2rem !important; max-width: 1320px !important; }
@@ -36,7 +44,9 @@
   border-right: 1px solid var(--oa-dark-line) !important;
 }
 [data-testid="stSidebar"] * { color: var(--oa-light) !important; font-family: var(--oa-sans) !important; }
-[data-testid="stSidebar"] .stMetric { background: rgba(255,255,255,.045); border: 1px solid var(--oa-dark-line); padding: 10px; }
+[data-testid="stSidebar"] .stMetric { background: rgba(255,255,255,.08); border: 1px solid var(--oa-dark-line); padding: 10px; }
+[data-testid="stSidebar"] [data-testid="stMetricLabel"],
+[data-testid="stSidebar"] [data-testid="stMetricValue"] { color: var(--oa-light) !important; }
 
 .oa-sidebar-title {
   font-family: var(--oa-serif);
@@ -77,8 +87,10 @@
   font-size: clamp(2.4rem, 6vw, 5rem);
   line-height: .9;
   margin: .35rem 0 .75rem;
+  color: var(--oa-ink) !important;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
 }
-.oa-hero p { max-width: 640px; color: var(--oa-archive); font-size: 1.02rem; }
+.oa-hero p { max-width: 640px; color: #40382d !important; font-size: 1.02rem; }
 
 .oa-meta {
   color: var(--oa-archive);
@@ -116,8 +128,9 @@
   font-family: var(--oa-serif);
   font-size: 1.35rem;
   margin: .25rem 0 .4rem;
+  color: var(--oa-ink) !important;
 }
-.oa-card p, .oa-agent-card p { color: var(--oa-archive); margin: 0; }
+.oa-card p, .oa-agent-card p { color: #40382d !important; margin: 0; }
 .oa-agent-card {
   display: grid;
   grid-template-columns: 62px 1fr;
@@ -154,6 +167,7 @@
 }
 .oa-step b { color: var(--oa-red); }
 .oa-step small { color: var(--oa-archive); }
+.oa-step span { color: var(--oa-ink); }
 
 .oa-trace-node {
   min-height: 150px;
@@ -183,6 +197,7 @@
   font-size: .78rem !important;
   padding: 10px 16px !important;
 }
+.stTabs [data-baseweb="tab"] p { color: inherit !important; }
 .stTabs [aria-selected="true"] {
   color: var(--oa-ink) !important;
   border-bottom: 4px solid var(--oa-red) !important;
@@ -196,6 +211,16 @@
   font-family: var(--oa-mono) !important;
   text-transform: uppercase;
   transition: all 180ms cubic-bezier(.16,1,.3,1) !important;
+}
+[data-testid="stSidebar"] .stButton > button {
+  border-color: rgba(239,227,207,.58) !important;
+  background: rgba(239,227,207,.96) !important;
+  color: var(--oa-ink) !important;
+}
+[data-testid="stSidebar"] .stButton > button:hover {
+  background: var(--oa-red) !important;
+  border-color: var(--oa-red) !important;
+  color: var(--oa-paper) !important;
 }
 .stButton > button:hover {
   border-color: var(--oa-red) !important;
@@ -218,6 +243,16 @@
   background: rgba(251,246,235,.92) !important;
   color: var(--oa-ink) !important;
 }
+.stTextInput input::placeholder, .stTextArea textarea::placeholder {
+  color: rgba(23,19,15,.54) !important;
+  opacity: 1 !important;
+}
+.stMultiSelect [data-baseweb="tag"] {
+  background: var(--oa-ink) !important;
+  color: var(--oa-paper) !important;
+  border-radius: 0 !important;
+}
+.stMultiSelect [data-baseweb="tag"] * { color: var(--oa-paper) !important; }
 
 [data-testid="stMetric"] {
   border: 1px solid var(--oa-line);
@@ -225,6 +260,11 @@
   padding: 12px;
 }
 div[data-testid="stAlert"] { border-radius: 0 !important; border-width: 1px !important; }
+div[data-testid="stAlert"] {
+  background: #fff6cf !important;
+  border-color: #b88d24 !important;
+}
+div[data-testid="stAlert"] * { color: var(--oa-ink) !important; }
 code, pre {
   border-radius: 0 !important;
   border: 1px solid var(--oa-line) !important;

@@ -3,7 +3,7 @@
 领域逻辑（非 LLM）:
   1. platform_rules 注入 — 微博140字、小红书emoji规范、公众号排版
   2. 输出校验 — 每篇 draft 长度检查、敏感平台规则合规
-  3. 合规标注自动补全 — 金融 Pack 时检查风险提示
+  3. 合规标注自动补全 — 平台规则与风险提示检查
 """
 from __future__ import annotations
 
@@ -40,12 +40,6 @@ def validate(payload: dict[str, Any], *, pack_id: str = "") -> list[str]:
         limit = PLATFORM_LIMITS.get(plat)
         if limit and len(str(text)) > limit:
             issues.append(f"「{plat}」文案 {len(text)} 字，超出平台限制 {limit} 字")
-    if pack_id == "finance":
-        all_text = " ".join(str(v) for v in drafts.values())
-        if "风险" not in all_text and "投资需谨慎" not in all_text:
-            issues.append("金融 Pack：文案缺少风险提示")
-        if "承诺收益" in all_text or "保本" in all_text.replace("不保本", ""):
-            issues.append("金融 Pack：文案疑似含承诺收益表述")
     return issues
 
 

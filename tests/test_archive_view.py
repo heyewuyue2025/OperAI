@@ -23,7 +23,7 @@ def conn_with_archive_rows(tmp_path: Path) -> sqlite3.Connection:
             "克制可信",
             json.dumps(["weibo", "wechat"], ensure_ascii=False),
             "原始素材包含 36 小时续航和 35dB 降噪。",
-            "media",
+            "archive",
             json.dumps(["D", "C"], ensure_ascii=False),
             "2026-05-31T10:00:00+00:00",
             "2026-05-31T10:00:00+00:00",
@@ -41,7 +41,7 @@ def conn_with_archive_rows(tmp_path: Path) -> sqlite3.Connection:
             None,
             "2026-05-31T10:01:00+00:00",
             "2026-05-31T10:01:03+00:00",
-            "media",
+            "archive",
         ),
     )
     d_out = {"insights": ["洞察"], "_metrics": {"numbers": ["36", "35"]}}
@@ -99,8 +99,8 @@ def test_build_evidence_chain_extracts_metrics_and_trace(
     chain = build_evidence_chain(conn_with_archive_rows, tmp_path, "run-1")
 
     assert chain["trace_events"][0]["event"] == "run_start"
-    assert chain["nodes"][0]["label"] == "Raw Input"
-    assert chain["nodes"][-1]["label"] == "Export Readiness"
+    assert chain["nodes"][0]["label"] == "原始素材"
+    assert chain["nodes"][-1]["label"] == "导出就绪"
 
 
 def test_build_archive_summary_counts_runs(tmp_path: Path, conn_with_archive_rows: sqlite3.Connection) -> None:

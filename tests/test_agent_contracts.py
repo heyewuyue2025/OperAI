@@ -47,7 +47,7 @@ def _context_for(agent_id: str) -> dict:
     return {
         "task_id": str(uuid.uuid4()),
         "run_id": str(uuid.uuid4()),
-        "pack_id": "media",
+        "pack_id": "archive",
         "agent_id": agent_id,
         "brand_voice": "克制",
         "platforms": ["weibo", "xhs"],

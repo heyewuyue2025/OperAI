@@ -107,7 +107,7 @@ def load_run_dossier(conn: sqlite3.Connection, logs_dir: Path, run_id: str) -> d
         "task_id": run["task_id"],
         "status": run["status"],
         "mock": bool(run["mock"]),
-        "pack_id": run["pack_id"] if "pack_id" in keys else "media",
+        "pack_id": run["pack_id"] if "pack_id" in keys else "archive",
         "started_at": run["started_at"],
         "finished_at": run["finished_at"],
         "error_message": run["error_message"],
@@ -125,12 +125,12 @@ def build_evidence_chain(conn: sqlite3.Connection, logs_dir: Path, run_id: str) 
     c_out = outputs.get("C") or {}
     n_out = outputs.get("N") or {}
     nodes = [
-        {"label": "Raw Input", "status": "captured"},
-        {"label": "Metrics", "status": "ready" if d_out.get("_metrics") else "implicit"},
-        {"label": "D Insight", "status": "ready" if d_out else "missing"},
-        {"label": "C Draft", "status": "ready" if c_out else "missing"},
-        {"label": "N Schedule", "status": "ready" if n_out else "missing"},
-        {"label": "Export Readiness", "status": "ready" if dossier.get("status") in {"success", "need_review"} else "blocked"},
+        {"label": "原始素材", "status": "captured"},
+        {"label": "指标", "status": "ready" if d_out.get("_metrics") else "implicit"},
+        {"label": "D 洞察", "status": "ready" if d_out else "missing"},
+        {"label": "C 草案", "status": "ready" if c_out else "missing"},
+        {"label": "N 排期", "status": "ready" if n_out else "missing"},
+        {"label": "导出就绪", "status": "ready" if dossier.get("status") in {"success", "need_review"} else "blocked"},
     ]
     return {"run_id": run_id, "nodes": nodes, "trace_events": dossier.get("trace_events", [])}
 

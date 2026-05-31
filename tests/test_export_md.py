@@ -28,7 +28,7 @@ def test_build_markdown_basic() -> None:
         title="T",
         task_id="tid",
         run_id="rid",
-        pack_id="media",
+        pack_id="archive",
         dag=["D", "C", "N"],
         agent_outputs={"D": d, "C": c, "N": n},
     )
@@ -44,7 +44,7 @@ def test_build_markdown_overrides() -> None:
         title="T",
         task_id="tid",
         run_id="rid",
-        pack_id="media",
+        pack_id="archive",
         dag=["D", "C", "N"],
         agent_outputs={"D": d, "C": c, "N": n},
         draft_overrides={"weibo": "已人工改写"},

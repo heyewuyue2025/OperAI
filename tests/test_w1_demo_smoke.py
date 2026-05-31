@@ -26,7 +26,7 @@ def test_w1_invoke_u_returns_segments() -> None:
     ctx = {
         "task_id": str(uuid.uuid4()),
         "run_id": str(uuid.uuid4()),
-        "pack_id": "media",
+        "pack_id": "archive",
         "agent_id": "U",
         "raw_input": "demo",
         "upstream": {

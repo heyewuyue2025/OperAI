@@ -12,7 +12,7 @@ def test_build_docx_bytes() -> None:
         title="t",
         task_id="tid",
         run_id="rid",
-        pack_id="media",
+        pack_id="archive",
         dag=["D", "C", "N"],
         agent_outputs={
             "D": {"insights": ["a"], "angles": [], "risk_flags": [], "evidence_spans": []},

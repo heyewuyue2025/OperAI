@@ -1,4 +1,4 @@
-"""Verify Gate：media 成功 run 不 block；敏感词可 block。"""
+"""Verify Gate：archive 成功 run 不 block；敏感词可 block。"""
 from __future__ import annotations
 
 import json
@@ -15,13 +15,13 @@ def _force_mock(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("OPERAI_MOCK", "1")
 
 
-def _media_pack():
+def _archive_pack():
     from src.harness.pack_loader import load_pack
 
-    return load_pack(ROOT, "media")
+    return load_pack(ROOT, "archive")
 
 
-def test_media_success_run_not_blocked() -> None:
+def test_archive_success_run_not_blocked() -> None:
     from src.harness.verify_gate import evaluate
     from src.orchestrator import execute_pipeline, load_config, open_connection
 
@@ -36,7 +36,7 @@ def test_media_success_run_not_blocked() -> None:
         raw_input="校园音乐节预热，强调安全与包容。",
     )
     assert res["ok"]
-    pack = _media_pack()
+    pack = _archive_pack()
     vr = evaluate(
         {
             "d_out": res["d_out"],
@@ -53,7 +53,7 @@ def test_media_success_run_not_blocked() -> None:
 def test_empty_drafts_warns_not_block() -> None:
     from src.harness.verify_gate import evaluate
 
-    pack = _media_pack()
+    pack = _archive_pack()
     vr = evaluate({"d_out": {}, "c_out": {}, "raw_input": ""}, pack=pack, root=ROOT)
     assert vr.block_export is False
     assert any("缺少" in w or "跳过" in w for w in vr.warnings)
@@ -62,7 +62,7 @@ def test_empty_drafts_warns_not_block() -> None:
 def test_sensitive_hit_blocks_export() -> None:
     from src.harness.verify_gate import evaluate
 
-    pack = _media_pack()
+    pack = _archive_pack()
     vr = evaluate(
         {
             "d_out": {"risk_flags": []},
