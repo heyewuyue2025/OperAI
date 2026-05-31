@@ -1,19 +1,92 @@
-﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>M-Agent · 市场运营 — OperAI</title><link rel="stylesheet" href="styles.css"/></head><body>
-<header class="nav"><a class="nav-brand" href="index.html"><span class="nav-dot"></span>OperAI</a><span class="nav-sub">市场运营 Agent</span></header>
-<main style="padding-top:calc(var(--nav-h) + var(--s-6))"><section class="section" style="padding-bottom:var(--s-16)">
-<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-6);margin-bottom:var(--s-8)"><div><div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3)"><div style="width:32px;height:32px;border-radius:var(--r-sm);background:rgba(200,168,124,0.14);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--text-sm);color:var(--gold)">M</div><span class="badge badge-accent">LLM Ready</span></div><h1 style="font-family:var(--serif);font-size:var(--text-2xl);font-weight:600;margin-bottom:var(--s-1)">市场运营 Agent</h1><p style="color:var(--text-secondary);font-size:var(--text-sm)">品牌定位 · 竞品分析 · 渠道组合策略 · 市场趋势洞察</p></div><div style="display:flex;gap:var(--s-2)"><button class="btn btn-ghost btn-sm">竞品报告</button><button class="btn btn-primary btn-sm">刷新分析</button></div></div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M-Agent · 市场运营 — OperAI Archive</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="nav">
+  <a class="nav-brand" href="index.html">OperAI Archive</a>
+  <nav class="nav-links" aria-label="Agent index"><a href="d-agent.html">D</a><a href="u-agent.html">U</a><a href="c-agent.html">C</a><a href="a-agent.html">A</a><a href="n-agent.html">N</a><a href="f-agent.html">F</a><a href="m-agent.html">M</a><a href="p-agent.html">P</a><a href="s-agent.html">S</a><a href="e-agent.html">E</a></nav>
+  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>Open Desk</a>
+</header>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4);margin-bottom:var(--s-8)">
-<div class="card fade-in delay-1"><h3 style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);letter-spacing:0.03em;text-transform:uppercase;margin-bottom:var(--s-4)">品牌定位</h3><div style="padding:var(--s-4);border-radius:var(--r-sm);background:var(--accent-soft);border:1px solid var(--border-accent)"><p style="font-size:var(--text-md);font-weight:600;color:var(--text-primary);line-height:1.6;font-family:var(--serif)">"不做让你变厉害的东西<br/>做让你变舒服的东西"</p><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-3)">差异化于头部品牌的「功效叙事」和腰部品牌的「性价比叙事」，走「日常治愈」路线。目标人群 18-30 岁职场女性，核心场景为碎片化自我关怀。</p></div></div>
-<div class="card fade-in delay-1"><h3 style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);letter-spacing:0.03em;text-transform:uppercase;margin-bottom:var(--s-4)">竞品格局</h3><div style="display:flex;flex-direction:column;gap:var(--s-2)">
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center"><div><strong style="font-size:var(--text-sm)">品牌A · 功效之王</strong><p style="font-size:var(--text-xs);color:var(--text-secondary)">市场份额 32% · 核心卖点「7天见效」</p></div><span style="font-size:var(--text-xs);color:var(--accent);font-family:var(--mono)">错位：我们不比功效</span></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center"><div><strong style="font-size:var(--text-sm)">品牌B · 性价比</strong><p style="font-size:var(--text-xs);color:var(--text-secondary)">市场份额 21% · 核心卖点「高端平替」</p></div><span style="font-size:var(--text-xs);color:var(--accent);font-family:var(--mono)">错位：我们不讲平替</span></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle);display:flex;justify-content:space-between;align-items:center"><div><strong style="font-size:var(--text-sm)">品牌C · 设计师品牌</strong><p style="font-size:var(--text-xs);color:var(--text-secondary)">市场份额 8% · 核心卖点「极简美学」</p></div><span style="font-size:var(--text-xs);color:var(--amber);font-family:var(--mono)">部分重叠· 可差异化</span></div></div></div></div>
+<main>
+  <section class="agent-file-hero">
+    <div class="file-card reveal visible">
+      <p class="file-meta">Agent File / M / Strategy Advisory</p>
+      <div class="agent-code">M</div>
+      <span class="stamp">Ready</span>
+    </div>
+    <div class="reveal visible delay-1">
+      <p class="eyebrow">OPERATIONS INTELLIGENCE INSTRUMENT</p>
+      <h1 class="agent-title">市场运营<br>Agent</h1>
+      <p class="hero-desc">把品牌定位、竞品、趋势和渠道组合整理成市场判断档案。</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>Run In Archive Desk</a>
+        <a class="btn" href="index.html#agents">Back To Index</a>
+      </div>
+    </div>
+  </section>
 
-<div class="card fade-in delay-2"><h3 style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);letter-spacing:0.03em;text-transform:uppercase;margin-bottom:var(--s-4)">推荐渠道组合</h3>
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-3)">
-<div style="text-align:center;padding:var(--s-4);border-radius:var(--r-sm);background:var(--accent-soft);border:1px solid var(--border-accent)"><div style="font-size:var(--text-lg);font-weight:700;color:var(--accent)">小红书</div><div class="metric-label" style="margin-top:var(--s-1)">主阵地</div><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-2)">种草心智匹配<br/>目标人群集中</p></div>
-<div style="text-align:center;padding:var(--s-4);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle)"><div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary)">抖音</div><div class="metric-label" style="margin-top:var(--s-1)">辅助</div><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-2)">场景短视频<br/>泛人群触达</p></div>
-<div style="text-align:center;padding:var(--s-4);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle)"><div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary)">微信</div><div class="metric-label" style="margin-top:var(--s-1)">私域</div><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-2)">小程序+社群<br/>复购闭环</p></div>
-<div style="text-align:center;padding:var(--s-4);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle)"><div style="font-size:var(--text-lg);font-weight:700;color:var(--text-primary)">微博</div><div class="metric-label" style="margin-top:var(--s-1)">品牌露出</div><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-2)">话题扩散<br/>降低优先级</p></div></div></div>
-</section></main><footer><span>OperAI</span><span><a href=\"index.html\">智能体目录</a></span><span><a href=\"http://127.0.0.1:8501\" data-workbench>工作台</a></span></footer><script src="main.js"></script></body></html>
+  <div class="agent-layout">
+    <aside class="side-index">
+      <a href="#role">01 Role</a>
+      <a href="#input">02 Input Ledger</a>
+      <a href="#output">03 Output Ledger</a>
+      <a href="#verify">04 Validation</a>
+      <a href="#chain">05 Chain</a>
+    </aside>
+
+    <section class="agent-sections">
+      <article class="dossier-panel reveal" id="role">
+        <p class="section-kicker">01 / Role In Archive</p>
+        <h2 class="section-title" style="font-size:var(--text-2xl);">研究职责</h2>
+        <p>把品牌定位、竞品、趋势和渠道组合整理成市场判断档案。</p>
+      </article>
+
+      <article class="dossier-panel reveal" id="input">
+        <p class="section-kicker">02 / Input Ledger</p>
+        <table class="ledger-table">
+          <tr><th>Accepted Material</th><td>品牌信息、竞品材料、市场趋势、目标客群、传播目标。</td></tr>
+          <tr><th>Upstream</th><td>Raw Input / D</td></tr>
+        </table>
+      </article>
+
+      <article class="dossier-panel reveal" id="output">
+        <p class="section-kicker">03 / Output Ledger</p>
+        <table class="ledger-table">
+          <tr><th>Structured Output</th><td>positioning、competitor_notes、channel_mix、trend_insights。</td></tr>
+          <tr><th>Example Dossier</th><td>把新品上市材料转为差异化定位和渠道组合建议。</td></tr>
+        </table>
+      </article>
+
+      <article class="evidence-panel reveal" id="verify">
+        <div class="trace-list">
+          <div class="trace-node hot">VALIDATION RULE</div>
+          <div class="trace-node">竞品判断需区分事实与推断；定位建议必须回到输入材料。</div>
+          <div class="trace-node">Status stamp only appears after output passes archive checks.</div>
+        </div>
+      </article>
+
+      <article class="dossier-panel reveal" id="chain">
+        <p class="section-kicker">05 / Related Chain</p>
+        <table class="ledger-table">
+          <tr><th>Upstream</th><td>Raw Input / D</td></tr>
+          <tr><th>Downstream</th><td>A / C / F</td></tr>
+          <tr><th>Archive Action</th><td>Open Archive Desk, create a Task File, run this Agent, then inspect Run Dossier and Evidence Chain.</td></tr>
+        </table>
+      </article>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <span>AGENT FILE / M / 市场运营</span>
+  <span>OperAI Archive OS</span>
+</footer>
+<script src="main.js"></script>
+</body>
+</html>

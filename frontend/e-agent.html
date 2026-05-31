@@ -1,30 +1,92 @@
-﻿<!DOCTYPE html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/><title>E-Agent · 交易运营 — OperAI</title><link rel="stylesheet" href="styles.css"/></head><body>
-<header class="nav"><a class="nav-brand" href="index.html"><span class="nav-dot"></span>OperAI</a><span class="nav-sub">交易运营 Agent</span></header>
-<main style="padding-top:calc(var(--nav-h) + var(--s-6))"><section class="section" style="padding-bottom:var(--s-16)">
-<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:var(--s-6);margin-bottom:var(--s-8)"><div><div style="display:flex;align-items:center;gap:var(--s-3);margin-bottom:var(--s-3)"><div style="width:32px;height:32px;border-radius:var(--r-sm);background:rgba(200,168,124,0.14);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:var(--text-sm);color:var(--gold)">E</div><span class="badge badge-accent">LLM Ready</span></div><h1 style="font-family:var(--serif);font-size:var(--text-2xl);font-weight:600;margin-bottom:var(--s-1)">交易运营 Agent</h1><p style="color:var(--text-secondary);font-size:var(--text-sm)">转化漏斗分析 · 促销方案设计 · CTA 优化 · GMV 增长策略</p></div><div style="display:flex;gap:var(--s-2)"><button class="btn btn-ghost btn-sm">历史漏斗</button><button class="btn btn-primary btn-sm">优化方案</button></div></div>
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>E-Agent · 交易运营 — OperAI Archive</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+<header class="nav">
+  <a class="nav-brand" href="index.html">OperAI Archive</a>
+  <nav class="nav-links" aria-label="Agent index"><a href="d-agent.html">D</a><a href="u-agent.html">U</a><a href="c-agent.html">C</a><a href="a-agent.html">A</a><a href="n-agent.html">N</a><a href="f-agent.html">F</a><a href="m-agent.html">M</a><a href="p-agent.html">P</a><a href="s-agent.html">S</a><a href="e-agent.html">E</a></nav>
+  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>Open Desk</a>
+</header>
 
-<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:var(--s-3);margin-bottom:var(--s-8)">
-<div class="card fade-in delay-1"><div class="metric-label">曝光→兴趣</div><div class="metric-value">4.2%</div><div style="margin-top:var(--s-2)"><span class="metric-label">CTR · 行业均值 3-5%</span></div></div>
-<div class="card fade-in delay-1"><div class="metric-label">兴趣→加购</div><div class="metric-value">11.8%</div><div style="margin-top:var(--s-2)"><span class="metric-label">行业均值 8-12%</span></div></div>
-<div class="card fade-in delay-2"><div class="metric-label">加购→下单</div><div class="metric-value" style="color:var(--amber)">2.1%</div><div style="margin-top:var(--s-2)"><span class="metric-change-down">▼ 0.4pp · 待优化</span></div></div>
-<div class="card fade-in delay-2"><div class="metric-label">30天复购率</div><div class="metric-value" style="color:var(--green)">28.4%</div><div style="margin-top:var(--s-2)"><span class="metric-change-up">▲ 3.2pp · 健康</span></div></div></div>
+<main>
+  <section class="agent-file-hero">
+    <div class="file-card reveal visible">
+      <p class="file-meta">Agent File / E / Strategy Advisory</p>
+      <div class="agent-code">E</div>
+      <span class="stamp">Ready</span>
+    </div>
+    <div class="reveal visible delay-1">
+      <p class="eyebrow">OPERATIONS INTELLIGENCE INSTRUMENT</p>
+      <h1 class="agent-title">交易运营<br>Agent</h1>
+      <p class="hero-desc">把转化漏斗整理成促销机制、CTA、商品页优化和 GMV 动作。</p>
+      <div class="hero-actions">
+        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>Run In Archive Desk</a>
+        <a class="btn" href="index.html#agents">Back To Index</a>
+      </div>
+    </div>
+  </section>
 
-<div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--s-4)">
-<div class="card fade-in delay-3"><h3 style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);letter-spacing:0.03em;text-transform:uppercase;margin-bottom:var(--s-4)">转化漏斗详情</h3>
-<div style="display:flex;flex-direction:column;gap:var(--s-2)">
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);display:flex;align-items:center;gap:var(--s-3)"><span style="font-size:var(--text-xs);color:var(--text-secondary);width:60px">曝光</span><div style="flex:1;height:20px;border-radius:4px;background:var(--accent);opacity:0.9;display:flex;align-items:center;padding-left:var(--s-2)"><span style="font-size:var(--text-2xs);color:var(--text-inverse);font-family:var(--mono)">2.4M</span></div></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);display:flex;align-items:center;gap:var(--s-3)"><span style="font-size:var(--text-xs);color:var(--text-secondary);width:60px">兴趣</span><div style="flex:1;height:20px;border-radius:4px;background:var(--accent);opacity:0.7;display:flex;align-items:center;padding-left:var(--s-2)"><span style="font-size:var(--text-2xs);color:var(--text-inverse);font-family:var(--mono)">101K · 4.2%</span></div></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);display:flex;align-items:center;gap:var(--s-3)"><span style="font-size:var(--text-xs);color:var(--text-secondary);width:60px">加购</span><div style="flex:1;height:20px;border-radius:4px;background:var(--amber);opacity:0.8;display:flex;align-items:center;padding-left:var(--s-2)"><span style="font-size:var(--text-2xs);color:var(--text-inverse);font-family:var(--mono)">11.9K · 流失 88.2%</span></div></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);display:flex;align-items:center;gap:var(--s-3)"><span style="font-size:var(--text-xs);color:var(--text-secondary);width:60px">下单</span><div style="flex:1;height:20px;border-radius:4px;background:var(--green);opacity:0.8;display:flex;align-items:center;padding-left:var(--s-2)"><span style="font-size:var(--text-2xs);color:var(--text-inverse);font-family:var(--mono)">250 · 2.1% · 瓶颈</span></div></div></div></div>
-<div style="display:flex;flex-direction:column;gap:var(--s-3)">
-<div class="card fade-in delay-3"><h3 style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);letter-spacing:0.03em;text-transform:uppercase;margin-bottom:var(--s-3)">促销方案建议</h3>
-<div style="display:flex;flex-direction:column;gap:var(--s-2)">
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:var(--accent-soft);border:1px solid var(--border-accent)"><strong style="font-size:var(--text-sm)">满2件8折</strong><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-1)">提升AOV · 约束：不强制凑单，不虚假宣传原价</p></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle)"><strong style="font-size:var(--text-sm)">首单赠试用装</strong><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-1)">降低决策门槛 · 约束：赠品价值≤主品50%</p></div>
-<div style="padding:var(--s-3);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);border:1px solid var(--border-subtle)"><strong style="font-size:var(--text-sm)">购后关联推荐</strong><p style="font-size:var(--text-xs);color:var(--text-secondary);margin-top:var(--s-1)">提升复购 · 约束：推荐算法不收集非必要个人信息</p></div></div></div>
-<div class="card fade-in delay-4"><h3 style="font-size:var(--text-sm);font-weight:600;color:var(--text-primary);letter-spacing:0.03em;text-transform:uppercase;margin-bottom:var(--s-3)">CTA 变体</h3>
-<div style="display:flex;flex-direction:column;gap:var(--s-1)">
-<span style="padding:var(--s-2);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);font-size:var(--text-xs);font-family:var(--mono)">"查看详情 · 首发价已同步至天猫旗舰店"</span>
-<span style="padding:var(--s-2);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);font-size:var(--text-xs);font-family:var(--mono)">"先加购物车 · 618当天0点准时开抢"</span>
-<span style="padding:var(--s-2);border-radius:var(--r-sm);background:rgba(0,0,0,0.02);font-size:var(--text-xs);font-family:var(--mono)">"不确定？先看真实用户评测再决定"</span></div></div></div></div>
-</section></main><footer><span>OperAI</span><span><a href=\"index.html\">智能体目录</a></span><span><a href=\"http://127.0.0.1:8501\" data-workbench>工作台</a></span></footer><script src="main.js"></script></body></html>
+  <div class="agent-layout">
+    <aside class="side-index">
+      <a href="#role">01 Role</a>
+      <a href="#input">02 Input Ledger</a>
+      <a href="#output">03 Output Ledger</a>
+      <a href="#verify">04 Validation</a>
+      <a href="#chain">05 Chain</a>
+    </aside>
+
+    <section class="agent-sections">
+      <article class="dossier-panel reveal" id="role">
+        <p class="section-kicker">01 / Role In Archive</p>
+        <h2 class="section-title" style="font-size:var(--text-2xl);">研究职责</h2>
+        <p>把转化漏斗整理成促销机制、CTA、商品页优化和 GMV 动作。</p>
+      </article>
+
+      <article class="dossier-panel reveal" id="input">
+        <p class="section-kicker">02 / Input Ledger</p>
+        <table class="ledger-table">
+          <tr><th>Accepted Material</th><td>流量来源、点击、加购、支付、客单价、库存和活动约束。</td></tr>
+          <tr><th>Upstream</th><td>F / S / C</td></tr>
+        </table>
+      </article>
+
+      <article class="dossier-panel reveal" id="output">
+        <p class="section-kicker">03 / Output Ledger</p>
+        <table class="ledger-table">
+          <tr><th>Structured Output</th><td>funnel_findings、promotion_plan、cta_variants、gmv_actions。</td></tr>
+          <tr><th>Example Dossier</th><td>把加购未支付人群转为限时权益、客服跟进和页面 CTA 优化。</td></tr>
+        </table>
+      </article>
+
+      <article class="evidence-panel reveal" id="verify">
+        <div class="trace-list">
+          <div class="trace-node hot">VALIDATION RULE</div>
+          <div class="trace-node">促销建议不能承诺收益；CTA 需匹配平台和客群。</div>
+          <div class="trace-node">Status stamp only appears after output passes archive checks.</div>
+        </div>
+      </article>
+
+      <article class="dossier-panel reveal" id="chain">
+        <p class="section-kicker">05 / Related Chain</p>
+        <table class="ledger-table">
+          <tr><th>Upstream</th><td>F / S / C</td></tr>
+          <tr><th>Downstream</th><td>Export Vault</td></tr>
+          <tr><th>Archive Action</th><td>Open Archive Desk, create a Task File, run this Agent, then inspect Run Dossier and Evidence Chain.</td></tr>
+        </table>
+      </article>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <span>AGENT FILE / E / 交易运营</span>
+  <span>OperAI Archive OS</span>
+</footer>
+<script src="main.js"></script>
+</body>
+</html>
