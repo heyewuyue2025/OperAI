@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>OperAI · 企业运营智能体平台</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="nav">
+  <span class="nav-brand"><span class="nav-dot"></span>OperAI</span>
+  <span class="nav-sub">企业运营智能体平台</span>
+</header>
+
+<main>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>一个平台<br/>十个岗位的 AI 搭档</h1>
+    <p class="hero-desc">
+      OperAI 为互联网大厂的运营团队提供专属 AI 智能体——覆盖用户、内容、活动、渠道、流量、市场、产品、社群、交易和数据分析十大职能。底层统一数据基座，上层各自独立工作台。不是聊天机器人，是每个运营岗位的专业工具。
+    </p>
+    <div class="hero-stats">
+      <div><span>10</span><small>运营岗位覆盖</small></div>
+      <div><span>10/10</span><small>LLM Ready</small></div>
+      <div><span>API-first</span><small>企业级部署</small></div>
+      <div><span>3</span><small>行业合规包</small></div>
+    </div>
+    <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>进入工作台</a>
+    <a class="btn btn-ghost" href="http://127.0.0.1:8000/docs" target="_blank" style="margin-left:var(--s-3)">API 文档</a>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 解决的问题 -->
+  <section class="content-section">
+    <h2>解决什么问题</h2>
+    <div class="three-col">
+      <div>
+        <h3>工具孤岛</h3>
+        <p>用户运营用神策，内容运营用稿定，活动运营用 Excel——一个人每天在 4-5 个工具间切换。OperAI 把十个岗位的工具统一到一个平台。</p>
+      </div>
+      <div>
+        <h3>决策靠经验</h3>
+        <p>"这个标题为什么用？因为上次类似活动用了效果不错。"没有证据链，没有 A/B 数据。OperAI 的每个 Agent 输出都附带证据溯源和规则校验。</p>
+      </div>
+      <div>
+        <h3>协同靠群聊</h3>
+        <p>跨职能战役需要五个团队协同，实际方式是拉群+开会。OperAI 的 Agent 之间共享数据基座，内容运营打开 C-Agent 时已经能看到数据的洞察。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Agent 目录 -->
+  <section class="content-section">
+    <h2>十个智能体</h2>
+    <p class="section-desc">每个 Agent 面向一个运营岗位。独立使用。共享数据。</p>
+
+    <div class="agent-list">
+      <a href="d-agent.html" class="list-item accent">
+        <span class="list-id">D</span>
+        <span class="list-body"><strong>数据运营</strong><small>全域数据聚合 · 指标提取 · 洞察生成 · 风险预警</small></span>
+        <span class="list-note">数据基座</span>
+      </a>
+      <a href="u-agent.html" class="list-item">
+        <span class="list-id">U</span>
+        <span class="list-body"><strong>用户运营</strong><small>RFM分群 · 生命周期判定 · 流失预警 · 触达策略</small></span>
+      </a>
+      <a href="c-agent.html" class="list-item">
+        <span class="list-id">C</span>
+        <span class="list-body"><strong>内容运营</strong><small>多平台文案生成 · 标题变体 · 口播脚本 · 合规自动检查</small></span>
+      </a>
+      <a href="a-agent.html" class="list-item">
+        <span class="list-id">A</span>
+        <span class="list-body"><strong>活动运营</strong><small>战役结构设计 · 预算建议 · ROI预估 · 任务拆解</small></span>
+      </a>
+      <a href="n-agent.html" class="list-item">
+        <span class="list-id">N</span>
+        <span class="list-body"><strong>渠道运营</strong><small>智能排期 · 标签策略 · 平台规则适配 · 冲突检测</small></span>
+      </a>
+      <a href="f-agent.html" class="list-item">
+        <span class="list-id">F</span>
+        <span class="list-body"><strong>流量运营</strong><small>渠道评分 · 预算分配 · CAC优化 · 转化路径分析</small></span>
+      </a>
+      <a href="m-agent.html" class="list-item">
+        <span class="list-id">M</span>
+        <span class="list-body"><strong>市场运营</strong><small>品牌定位 · 竞品分析 · 渠道组合策略</small></span>
+      </a>
+      <a href="p-agent.html" class="list-item">
+        <span class="list-id">P</span>
+        <span class="list-body"><strong>产品运营</strong><small>功能 adoption 分析 · UX反馈归类 · 迭代优先级</small></span>
+      </a>
+      <a href="s-agent.html" class="list-item">
+        <span class="list-id">S</span>
+        <span class="list-body"><strong>社群运营</strong><small>互动话术 · KOL匹配 · 社群活动策划</small></span>
+      </a>
+      <a href="e-agent.html" class="list-item">
+        <span class="list-id">E</span>
+        <span class="list-body"><strong>交易运营</strong><small>转化漏斗分析 · 促销方案 · CTA优化</small></span>
+      </a>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- Harness 能力 -->
+  <section class="content-section">
+    <h2>不只是 AI 生成，是可靠运行</h2>
+    <p class="section-desc">Harness 平台在 Agent 之上提供编排、观测、验证与沉淀，拒绝「全自动造谣式运营」。</p>
+
+    <div class="three-col">
+      <div>
+        <h3>AgentOps 全链路观测</h3>
+        <p>每次运行生成 run_id · SQLite + JSONL 双写 · 每步耗时、降级标记、输出摘要均可追溯。不是黑盒，是白盒。</p>
+      </div>
+      <div>
+        <h3>Verify Gate 验证环</h3>
+        <p>每个 Agent 输出经 validate() 规则校验：证据摘录是否可溯源、跨平台核心数字是否一致、金融内容是否包含风险提示。</p>
+      </div>
+      <div>
+        <h3>领域规则引擎</h3>
+        <p>Agent 不是换了一套 system prompt 的 ChatGPT。D-Agent 内置风险扫描规则库，N-Agent 内置最优发布时间表，F-Agent 内置五因子渠道评分算法。</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- 部署 -->
+  <section class="content-section">
+    <h2>部署到你的团队</h2>
+    <div class="deploy-grid">
+      <div><span>Docker</span><small>docker compose up<br/>5 分钟启动</small></div>
+      <div><span>REST API</span><small>7 个端点<br/>API Key 认证</small></div>
+      <div><span>Webhook</span><small>任务完成自动回调<br/>企业微信群机器人</small></div>
+      <div><span>多租户</span><small>X-OperAI-Tenant<br/>数据隔离</small></div>
+      <div><span>企业部署</span><small>支持 K8s 集群<br/>无状态设计</small></div>
+      <div><span>Mock 即用</span><small>无需 API Key<br/>本地即刻体验</small></div>
+    </div>
+
+    <div style="margin-top:var(--s-8);text-align:center;">
+      <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>打开工作台</a>
+      <span style="display:block;margin-top:var(--s-3);font-size:var(--text-xs);color:var(--text-muted);font-family:var(--mono);">streamlit run app.py &nbsp;|&nbsp; uvicorn src.api:app --port 8000</span>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div>
+    <strong>OperAI</strong>
+    <span>企业运营智能体平台</span>
+  </div>
+  <div>
+    <span>10 Agent · API-first · 企业级部署</span>
+  </div>
+  <div>
+    <a href="http://127.0.0.1:8501" data-workbench>工作台</a>
+    <a href="http://127.0.0.1:8000/docs" target="_blank">API</a>
+  </div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

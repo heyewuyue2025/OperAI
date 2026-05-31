@@ -1,0 +1,12 @@
+# 冻结版本（答辩 / 录屏机可复现安装）
+# 安装: pip install -r requirements.lock
+# 生成: pip freeze（在已通过 pytest 的环境中更新此文件）
+
+streamlit==1.39.0
+starlette==0.41.3
+openai==1.58.1
+pydantic==2.10.4
+python-dotenv==1.0.1
+PyYAML==6.0.2
+pytest==8.3.4
+python-docx==1.1.2

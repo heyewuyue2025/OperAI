@@ -1,0 +1,168 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>C-Agent · 内容运营 — OperAI</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="nav">
+  <a class="nav-brand" href="index.html"><span class="nav-brand-dot"></span>OperAI</a>
+  <nav class="nav-links">
+    <a href="d-agent.html">数据</a><a href="u-agent.html">用户</a><a href="c-agent.html" class="active">内容</a><a href="a-agent.html">活动</a><a href="n-agent.html">渠道</a><a href="f-agent.html">流量</a><a href="m-agent.html">市场</a><a href="p-agent.html">产品</a><a href="s-agent.html">社群</a><a href="e-agent.html">交易</a>
+  </nav>
+  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>工作台</a>
+</header>
+
+<main style="padding-top: calc(var(--nav-h) + var(--s-6));">
+  <section class="section" style="padding-bottom: var(--s-16);">
+
+    <!-- Page Header -->
+    <div style="display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s-6); margin-bottom: var(--s-8); flex-wrap: wrap;">
+      <div>
+        <div style="display: flex; align-items: center; gap: var(--s-3); margin-bottom: var(--s-3);">
+          <div style="width: 32px; height: 32px; border-radius: var(--r-sm); background: var(--accent-soft); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: var(--text-sm); color: var(--accent);">C</div>
+          <span class="badge badge-accent">LLM Ready</span>
+          <span class="badge badge-green">合规通过</span>
+        </div>
+        <h1 style="font-family: var(--serif); font-size: var(--text-2xl); font-weight: 600; margin-bottom: var(--s-1);">内容运营 Agent</h1>
+        <p style="color: var(--text-secondary); font-size: var(--text-sm);">多平台文案生成 · 标题变体 · 合规自动检查 · 品牌调性约束</p>
+      </div>
+      <div style="display: flex; gap: var(--s-2); align-items: center;">
+        <div style="text-align: right; margin-right: var(--s-4);">
+          <div style="font-size: var(--text-2xs); color: var(--text-muted);">D-Agent 洞察</div>
+          <div style="font-size: var(--text-xs); color: var(--accent); font-family: var(--mono);">周末 CVR 4.8% · 电子产品退款预警</div>
+        </div>
+        <button class="btn btn-ghost btn-sm">历史版本</button>
+        <button class="btn btn-primary btn-sm">生成文案</button>
+      </div>
+    </div>
+
+    <!-- Main: Input + Output Grid -->
+    <div style="display: grid; grid-template-columns: 0.8fr 1.2fr; gap: var(--s-4); margin-bottom: var(--s-8);">
+
+      <!-- Left: Input Panel -->
+      <div style="display: flex; flex-direction: column; gap: var(--s-3);">
+        <div class="card fade-in delay-1">
+          <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: var(--s-3);">素材输入</h3>
+          <textarea style="
+            width: 100%; height: 140px; padding: var(--s-3);
+            background: var(--bg-root); border: 1px solid var(--border);
+            border-radius: var(--r-sm); color: var(--text-primary);
+            font-family: var(--sans); font-size: var(--text-sm); line-height: 1.6;
+            resize: vertical; outline: none;
+          " placeholder="粘贴活动说明、产品卖点、目标人群描述…">新品上市：智能蓝牙耳机「EchoPods Pro」。核心卖点：35dB主动降噪、36小时续航、IPX5防水。目标人群：25-35岁职场人群。品牌调性：专业克制、不夸大参数、强调实际体验。需要在微博、小红书、微信公众号三平台同步传播。</textarea>
+          <div style="display: flex; gap: var(--s-2); margin-top: var(--s-2);">
+            <span class="badge badge-accent" style="cursor: pointer;">微博</span>
+            <span class="badge badge-accent" style="cursor: pointer;">公众号</span>
+            <span class="badge badge-accent" style="cursor: pointer;">小红书</span>
+          </div>
+        </div>
+
+        <div class="card fade-in delay-2">
+          <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: var(--s-3);">品牌调性</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--s-2);">
+            <label style="font-size: var(--text-xs); color: var(--text-secondary); display: flex; align-items: center; gap: var(--s-2);">
+              <input type="radio" name="tone" checked style="accent-color: var(--accent);"> 专业克制 · 参数准确 · 不夸大
+            </label>
+            <label style="font-size: var(--text-xs); color: var(--text-secondary); display: flex; align-items: center; gap: var(--s-2);">
+              <input type="radio" name="tone"> 年轻活泼 · 生活化 · 强共鸣
+            </label>
+            <label style="font-size: var(--text-xs); color: var(--text-secondary); display: flex; align-items: center; gap: var(--s-2);">
+              <input type="radio" name="tone"> 奢侈品感 · 高端简洁 · 留白多
+            </label>
+          </div>
+        </div>
+
+        <div class="card fade-in delay-2">
+          <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; text-transform: uppercase; margin-bottom: var(--s-3);">合规状态</h3>
+          <div style="display: flex; flex-direction: column; gap: var(--s-2);">
+            <div style="display: flex; align-items: center; gap: var(--s-2); font-size: var(--text-xs);">
+              <span style="color: var(--green);">✓</span> 敏感词扫描通过
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--s-2); font-size: var(--text-xs);">
+              <span style="color: var(--green);">✓</span> 平台字数合规
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--s-2); font-size: var(--text-xs);">
+              <span style="color: var(--green);">✓</span> 禁用词检查通过
+            </div>
+            <div style="display: flex; align-items: center; gap: var(--s-2); font-size: var(--text-xs);">
+              <span style="color: var(--amber);">●</span> D-Agent 风险提示：避免承诺「最佳音质」
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Generated Content -->
+      <div class="card fade-in delay-3" style="display: flex; flex-direction: column; gap: var(--s-4);">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <h3 style="font-size: var(--text-sm); font-weight: 600; color: var(--text-primary); letter-spacing: 0.03em; text-transform: uppercase;">生成文案</h3>
+          <div style="display: flex; gap: var(--s-1);">
+            <button class="btn btn-ghost btn-sm" style="background: var(--accent-soft); border-color: var(--border-accent); color: var(--accent);">微博</button>
+            <button class="btn btn-ghost btn-sm">公众号</button>
+            <button class="btn btn-ghost btn-sm">小红书</button>
+          </div>
+        </div>
+
+        <!-- Weibo Draft -->
+        <div style="padding: var(--s-3); border-radius: var(--r-sm); background: rgba(0,0,0,0.02); border: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-2);">
+            <span style="font-size: var(--text-xs); font-weight: 600; color: var(--accent);">微博 · 话题扩散</span>
+            <span style="font-size: var(--text-2xs); color: var(--text-muted); font-family: var(--mono);">287 字 · 合规 ✓</span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-primary); line-height: 1.7;">
+            终于等到了。#EchoPods Pro# 正式发布。<br/><br/>
+            35dB 主动降噪，地铁通勤的救星。实测下来最惊喜的不是降噪深度，是耳压感几乎为零——戴两小时不闷。<br/><br/>
+            36 小时续航 + IPX5 防水，出差一周充一次，下雨跑步不用摘。<br/><br/>
+            不吹参数，只说真实体验。评论区抽三位送首发体验资格。
+          </p>
+          <div style="margin-top: var(--s-2); display: flex; gap: var(--s-1);">
+            <span style="font-size: var(--text-2xs); color: var(--text-muted); font-family: var(--mono);">#EchoPods Pro</span>
+            <span style="font-size: var(--text-2xs); color: var(--text-muted); font-family: var(--mono);">#降噪耳机推荐</span>
+          </div>
+        </div>
+
+        <!-- WeChat Draft -->
+        <div style="padding: var(--s-3); border-radius: var(--r-sm); background: rgba(0,0,0,0.02); border: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-2);">
+            <span style="font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary);">公众号 · 深度叙事</span>
+            <span style="font-size: var(--text-2xs); color: var(--text-muted); font-family: var(--mono);">1,280 字 · 合规 ✓</span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-primary); line-height: 1.7;">
+            <strong>一副好耳机，不该让你感受到它的存在。</strong><br/><br/>
+            我们花了 18 个月调试 EchoPods Pro 的降噪算法。不是因为做不到更深，而是我们相信降噪的终极目标不是"隔绝世界"，是"让你忘了戴着耳机"。<br/><br/>
+            <strong>三个数字</strong><br/>
+            · 35dB — 地铁轰鸣降到耳语级别<br/>
+            · 36h — 出差一周不用带充电线<br/>
+            · 4.8g — 单耳重量，比一张 A4 纸还轻<br/><br/>
+            参数不是用来吹的，是用来兑现的。EchoPods Pro 今天起在官方商城和天猫旗舰店同步开售。
+          </p>
+        </div>
+
+        <!-- XHS Draft -->
+        <div style="padding: var(--s-3); border-radius: var(--r-sm); background: rgba(0,0,0,0.02); border: 1px solid var(--border-subtle);">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--s-2);">
+            <span style="font-size: var(--text-xs); font-weight: 600; color: var(--text-secondary);">小红书 · 种草笔记</span>
+            <span style="font-size: var(--text-2xs); color: var(--text-muted); font-family: var(--mono);">420 字 · 合规 ✓</span>
+          </div>
+          <p style="font-size: var(--text-sm); color: var(--text-primary); line-height: 1.7;">
+            🎧 通勤党的本命耳机来了<br/><br/>
+            用了两周 EchoPods Pro，说几个真实感受：<br/><br/>
+            ✨ 降噪很聪明——地铁上低频噪音压得很干净，但报站声还能听见，不会坐过站<br/>
+            🔋 续航真的顶——出差一周回来还剩 20%，充电线可以扔了<br/>
+            🏃 跑步党友好——IPX5 防水，小雨中雨都不怕，关键是戴着不会掉<br/><br/>
+            不是广告，纯粹是被朋友安利后用了两周的真实体验。缺点也有：只有黑白两色，想要绿色～<br/><br/>
+            #通勤好物 #降噪耳机 #数码好物分享
+          </p>
+        </div>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<script src="main.js"></script>
+</body>
+</html>

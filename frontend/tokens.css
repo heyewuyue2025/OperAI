@@ -1,0 +1,74 @@
+/* OperAI Design System · Japanese Precision — 暖白纸 · 墨黑 · 朱红 */
+:root {
+  /* ── 纸 — 暖白底色 ── */
+  --bg-root: #fafaf8;
+  --bg-surface: #f5f4f0;
+  --bg-card: #ffffff;
+  --bg-elevated: #f0efeb;
+  --bg-glass: rgba(255, 255, 255, 0.88);
+
+  /* ── 墨 — 前景文案 ── */
+  --text-primary: #1a1a1a;
+  --text-secondary: #5c5c5c;
+  --text-muted: #999999;
+  --text-inverse: #fafaf8;
+
+  /* ── 朱红 — 唯一强调色 ── */
+  --accent: #d4402a;
+  --accent-hover: #b83724;
+  --accent-soft: rgba(212, 64, 42, 0.06);
+  --accent-glow: rgba(212, 64, 42, 0.12);
+
+  /* ── 墨灰 — 次级 ── */
+  --gold: #5c5c5c;
+  --gold-soft: rgba(0, 0, 0, 0.04);
+
+  /* ── 语义 — 从日本传统色 ── */
+  --green: #2d6a4f;
+  --green-bg: rgba(45, 106, 79, 0.06);
+  --amber: #b8860b;
+  --amber-bg: rgba(184, 134, 11, 0.06);
+  --red: #d4402a;
+  --red-bg: rgba(212, 64, 42, 0.05);
+
+  /* ── 墨线 — 极细边框 ── */
+  --border-subtle: rgba(0, 0, 0, 0.04);
+  --border: rgba(0, 0, 0, 0.06);
+  --border-strong: rgba(0, 0, 0, 0.10);
+  --border-accent: rgba(212, 64, 42, 0.22);
+
+  /* ── 圆角 — 克制 ── */
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r: 6px;
+  --r-md: 8px;
+  --r-lg: 12px;
+
+  /* ── 间距 — 间(ma) ── */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px;
+  --s-4: 16px;  --s-5: 20px;  --s-6: 24px;
+  --s-8: 32px;  --s-10: 40px;  --s-12: 48px;  --s-16: 64px;
+
+  /* ── 字阶 ── */
+  --text-2xs: 0.65rem; --text-xs: 0.72rem; --text-sm: 0.82rem;
+  --text-base: 0.92rem; --text-md: 1.05rem; --text-lg: 1.22rem;
+  --text-xl: 1.45rem; --text-2xl: 1.75rem; --text-3xl: 2.15rem;
+
+  /* ── 字体 — 日式极简 ── */
+  --sans: "Noto Sans CJK SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --serif: "Noto Serif CJK SC", "Yu Mincho", "Hiragino Mincho Pro", "Songti SC", serif;
+  --mono: "SF Mono", "Cascadia Code", "Consolas", monospace;
+
+  /* ── 影 — 极轻 ── */
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04);
+  --shadow: 0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg: 0 4px 16px rgba(0,0,0,0.08);
+  --shadow-accent: 0 0 0 1px var(--accent), 0 0 0 4px rgba(212,64,42,0.08);
+
+  /* ── 动 — 慢而柔 ── */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --fast: 180ms;  --normal: 280ms;  --slow: 420ms;
+
+  /* ── 布局 ── */
+  --nav-h: 56px;  --max-w: 1200px;  --px: clamp(24px, 5vw, 48px);
+}

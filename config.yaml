@@ -1,0 +1,16 @@
+# OperAI 运行时配置
+
+llm:
+  temperature: 0.4
+  max_tokens: 2048
+  timeout_seconds: 90
+  max_retries: 1
+  model_d: gpt-4o-mini
+  model_c: gpt-4o
+
+paths:
+  sqlite: data/operai.sqlite3
+  logs_dir: data/logs
+
+harness:
+  default_pack_id: media

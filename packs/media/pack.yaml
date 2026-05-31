@@ -1,0 +1,15 @@
+id: media
+name: 媒体运营 Pack
+description: 热点响应 · 多平台内容 · 渠道排期
+default_dag:
+  - D
+  - C
+  - N
+default_platforms:
+  - weibo
+  - wechat
+  - xhs
+samples_dir: samples
+verify:
+  block_export_until_review: false
+  require_risk_flags_ack: false
