@@ -1,273 +1,333 @@
-"""OperAI 工作台 — 岗位 Agent 工作台。
+"""OperAI Archive Desk.
 
-每个运营岗位的人打开这个页面，选择自己的 Agent，
-输入素材，运行，看到产出，验证质量，导出方案。
+The workbench treats every operation as an archive record: Task File, Agent
+Index, Run Dossier, Evidence Chain, Export Vault, and Settings.
 """
 from __future__ import annotations
 
+import json
 import time
 import uuid
+from pathlib import Path
+from typing import Any
 
 import streamlit as st
-
-from src.export_campaign import build_campaign_markdown
-from src.data_hub import extract_metrics, get_cached
-from src.harness.plugin_registry import list_plugins, invoke
-from src.harness.verify_gate import evaluate as verify_evaluate, VerifyResult
-from src.llm_runtime import effective_use_llm
-from src.orchestrator import load_config, open_connection, llm_settings
-from src.render_output import render as render_output
-from src.storage.db import query_all, execute
-from src.logutil import append_event
-from pathlib import Path
-import json
 from dotenv import load_dotenv
+
+from src.archive_view import build_archive_summary, build_evidence_chain, list_agent_files, load_run_dossier
+from src.export_campaign import build_campaign_docx_bytes, build_campaign_markdown
+from src.harness.pack_loader import list_packs
+from src.llm_runtime import effective_use_llm, sync_from_session
+from src.orchestrator import execute_pipeline, load_config, open_connection, resolve_paths, upsert_task
+from src.render_output import render as render_output
+from src.sensitive import effective_sensitive_words, parse_sensitive_lines, save_sensitive_words
+from src.storage.db import query_all
+
+
 load_dotenv()
 
 ROOT = Path(__file__).resolve().parent
 cfg = load_config(ROOT)
 conn = open_connection(ROOT, cfg)
+_db_path, LOGS_DIR = resolve_paths(ROOT, cfg)
 
-st.set_page_config(page_title="OperAI · 工作台", layout="wide")
+st.set_page_config(page_title="OperAI Archive Desk", layout="wide")
 
-# 注入设计令牌
 _theme_path = ROOT / "frontend" / "streamlit-theme.css"
 if _theme_path.is_file():
     st.markdown(f"<style>{_theme_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
-# ── Agent 元数据 ──
-AGENT_META = {
-    "D": {"name": "数据运营", "desc": "全域数据聚合 · 指标提取 · 洞察生成 · 风险预警", "tier": "数据基座"},
-    "U": {"name": "用户运营", "desc": "RFM 分群 · 生命周期判定 · 流失预警 · 触达策略", "tier": "LLM Augmented"},
-    "C": {"name": "内容运营", "desc": "多平台文案 · 标题变体 · 口播脚本 · 合规检查", "tier": "LLM Augmented"},
-    "A": {"name": "活动运营", "desc": "战役结构 · 预算建议 · ROI 预估 · 任务拆解", "tier": "LLM Augmented"},
-    "N": {"name": "渠道运营", "desc": "智能排期 · 标签策略 · 平台适配 · 冲突检测", "tier": "Rule-First"},
-    "F": {"name": "流量运营", "desc": "渠道评分 · 预算分配 · CAC 优化 · 转化分析", "tier": "LLM Augmented"},
-    "M": {"name": "市场运营", "desc": "品牌定位 · 竞品分析 · 渠道组合 · 趋势洞察", "tier": "LLM Augmented"},
-    "P": {"name": "产品运营", "desc": "功能分析 · UX 反馈归类 · 迭代优先级 · 数据归因", "tier": "LLM Augmented"},
-    "S": {"name": "社群运营", "desc": "互动话术 · KOL 匹配 · 社群活动 · 情绪监测", "tier": "LLM Augmented"},
-    "E": {"name": "交易运营", "desc": "转化漏斗 · 促销设计 · CTA 优化 · GMV 分析", "tier": "LLM Augmented"},
-}
-
-TIER_LABELS = {
-    "数据基座": "统一数据层，所有 Agent 共享",
-    "Rule-First": "领域规则引擎 + LLM 增强",
-    "LLM Augmented": "LLM 推理 + 领域校验",
-}
-
-# ── Session ──
 st.session_state.setdefault("task_id", str(uuid.uuid4()))
+st.session_state.setdefault("task_title", "Untitled Task File")
+st.session_state.setdefault("raw_material", "")
+st.session_state.setdefault("brand_voice", "")
+st.session_state.setdefault("platforms", ["weibo", "wechat", "xhs"])
+st.session_state.setdefault("selected_pack", cfg.get("harness", {}).get("default_pack_id", "media"))
 st.session_state.setdefault("last_result", None)
-st.session_state.setdefault("selected_agent", "D")
+st.session_state.setdefault("active_run_id", None)
+st.session_state.setdefault("operai_force_mock", True)
+st.session_state.setdefault("operai_model", "gpt-4o-mini")
+st.session_state.setdefault("operai_temperature", float(cfg.get("llm", {}).get("temperature", 0.4)))
+st.session_state.setdefault("operai_short_output", False)
+st.session_state.setdefault("operai_skip_review", False)
+st.session_state.setdefault("operai_split_models", False)
+st.session_state.setdefault("operai_model_d", cfg.get("llm", {}).get("model_d", "gpt-4o-mini"))
+st.session_state.setdefault("operai_model_c", cfg.get("llm", {}).get("model_c", "gpt-4o"))
 
-# ── Sidebar: Agent 选择器 ──
-with st.sidebar:
-    st.markdown("## OperAI")
-    st.caption("企业运营智能体平台")
+sync_from_session(st.session_state)
 
-    st.divider()
 
-    # Agent 选择
-    agent_ids = list(AGENT_META.keys())
-    current_agent = st.session_state.get("selected_agent", "D")
-    current_idx = agent_ids.index(current_agent) if current_agent in agent_ids else 0
+def _stamp(label: str, tone: str = "red") -> str:
+    return f"<span class='oa-stamp oa-{tone}'>{label}</span>"
 
-    selected = st.selectbox(
-        "选择你的岗位 Agent",
-        options=agent_ids,
-        format_func=lambda x: f"{x} · {AGENT_META[x]['name']}",
-        index=current_idx,
+
+def _card(title: str, body: str, meta: str = "") -> None:
+    st.markdown(
+        f"""
+        <div class="oa-card">
+          <div class="oa-meta">{meta}</div>
+          <h3>{title}</h3>
+          <p>{body}</p>
+        </div>
+        """,
+        unsafe_allow_html=True,
     )
 
-    if selected != current_agent:
-        st.session_state["selected_agent"] = selected
-        st.session_state["last_result"] = None
-        st.rerun()
 
-    meta = AGENT_META[selected]
-    st.caption(f"**{meta['name']}** · {meta['tier']}")
-    st.caption(meta["desc"])
-
-    st.divider()
-
-    # Harness 信息
-    st.caption("**Harness 保障**")
-    st.caption("· 每次运行自动提取结构化指标")
-    st.caption("· 输出经过 validate() 规则校验")
-    st.caption("· 全链路可观测（SQLite + JSONL）")
-    st.caption("· 导出前经 Verify Gate 合规审查")
-
-    st.divider()
-    st.caption(f"task `{st.session_state['task_id'][:8]}…`")
-
-# ── Main ──
-aid = st.session_state["selected_agent"]
-meta = AGENT_META[aid]
-
-st.markdown(f"### {aid} · {meta['name']} Agent")
-st.caption(meta["desc"])
-
-# 输入区
-raw = st.text_area(
-    "素材正文",
-    key="f_raw",
-    height=160,
-    placeholder="粘贴你的运营素材、活动说明、数据摘要、用户反馈… 任何你需要 AI 帮你分析或处理的内容。",
-    help="D-Agent 会自动从这段文本中提取数字、金额、日期、渠道实体等结构化指标，注入到你的 Agent 上下文中。"
-)
-
-col1, col2, col3 = st.columns([2, 1, 1])
-with col1:
-    run_clicked = st.button(
-        f"运行 {aid}-Agent",
-        type="primary",
-        use_container_width=True,
-        disabled=not raw.strip(),
+def _recent_runs(limit: int = 8) -> list[dict[str, Any]]:
+    rows = query_all(
+        conn,
+        "SELECT id, task_id, status, mock, started_at, finished_at, pack_id FROM runs ORDER BY datetime(started_at) DESC LIMIT ?",
+        (limit,),
     )
-with col2:
-    mode_label = "LLM · DeepSeek" if effective_use_llm() else "Mock"
-    st.caption(f"运行模式：{mode_label}")
-with col3:
-    st.caption(f"Harness · validate() 开启")
+    return [dict(r) for r in rows]
 
-# ── 执行 ──
-if run_clicked:
-    raw_text = raw.strip()
 
-    # 数据基座：提取指标
-    extract_metrics(raw_text)
-    metrics_snap = get_cached()
+def _agent_outputs_for_export(result: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
+    if not result:
+        return {}
+    if isinstance(result.get("agent_outputs"), dict):
+        return result["agent_outputs"]
+    out: dict[str, dict[str, Any]] = {}
+    for aid in ("D", "C", "N"):
+        key = f"{aid.lower()}_out"
+        if isinstance(result.get(key), dict):
+            out[aid] = result[key]
+    return out
 
-    use_llm = effective_use_llm()
-    llm_cfg_val = llm_settings(cfg)
 
-    ctx = {
-        "task_id": st.session_state["task_id"],
-        "run_id": str(uuid.uuid4()),
-        "pack_id": "default",
-        "agent_id": aid,
-        "brand_voice": "",
-        "platforms": ["weibo", "wechat", "xhs"],
-        "raw_input": raw_text,
-        "structured_metrics": {},
-        "upstream": {},
-    }
-
-    logs_dir = (ROOT / cfg["paths"]["logs_dir"]).resolve()
-    run_id = ctx["run_id"]
+def _run_archive_task() -> None:
+    raw = st.session_state.get("raw_material", "").strip()
+    if not raw:
+        st.warning("Task File 缺少原始素材。")
+        return
+    sync_from_session(st.session_state)
+    selected_pack = st.session_state.get("selected_pack", cfg.get("harness", {}).get("default_pack_id", "media"))
+    upsert_task(
+        conn,
+        task_id=st.session_state["task_id"],
+        title=st.session_state["task_title"].strip() or "Untitled Task File",
+        brand_voice=st.session_state.get("brand_voice", ""),
+        platforms=st.session_state.get("platforms") or ["weibo", "wechat", "xhs"],
+        raw_input=raw,
+        pack_id=selected_pack,
+    )
     started = time.time()
-
-    # 记录 run
-    execute(conn, "INSERT INTO runs (id, task_id, mock, status, started_at) VALUES (?,?,?,?,?)",
-            (run_id, st.session_state["task_id"], 1, "running", time.strftime("%Y-%m-%d %H:%M:%S")))
-
-    with st.spinner(f"{aid}-Agent 执行中…"):
-        try:
-            output = invoke(aid, use_llm=use_llm, context=ctx, llm_cfg=llm_cfg_val, root=ROOT)
-            duration_ms = int((time.time() - started) * 1000)
-
-            # 记录步骤
-            summary = str(output.get("insights", output.get("segments", output.get("drafts", ""))))[:200]
-            execute(conn,
-                "INSERT INTO run_steps (run_id, step, status, duration_ms, raw_json, output_summary) VALUES (?,?,?,?,?,?)",
-                (run_id, aid, "success", duration_ms, json.dumps(output, ensure_ascii=False), summary))
-
-            append_event(logs_dir, run_id, {"event": "agent_run", "agent": aid, "duration_ms": duration_ms})
-
-            execute(conn, "UPDATE runs SET status=?, finished_at=? WHERE id=?",
-                    ("success", time.strftime("%Y-%m-%d %H:%M:%S"), run_id))
-
-            st.session_state["last_result"] = {
-                "ok": True,
-                "run_id": run_id,
-                "agent_id": aid,
-                "output": output,
-                "duration_ms": duration_ms,
-                "metrics_snap": metrics_snap,
-            }
-        except Exception as e:
-            execute(conn, "UPDATE runs SET status=?, finished_at=?, error_message=? WHERE id=?",
-                    ("failed", time.strftime("%Y-%m-%d %H:%M:%S"), str(e)[:500], run_id))
-            st.session_state["last_result"] = {"ok": False, "error": str(e), "run_id": run_id}
-
+    with st.spinner("Archive Desk 正在装配案卷、扫描证据链、运行 DAG..."):
+        result = execute_pipeline(
+            ROOT,
+            conn,
+            cfg,
+            task_id=st.session_state["task_id"],
+            title=st.session_state["task_title"].strip() or "Untitled Task File",
+            brand_voice=st.session_state.get("brand_voice", ""),
+            platforms=st.session_state.get("platforms") or ["weibo", "wechat", "xhs"],
+            raw_input=raw,
+        )
+    result["duration_ms"] = int((time.time() - started) * 1000)
+    st.session_state["last_result"] = result
+    if result.get("run_id"):
+        st.session_state["active_run_id"] = result["run_id"]
     st.rerun()
 
-# ── 结果展示 ──
-res = st.session_state.get("last_result")
-if res and res.get("ok"):
+
+agent_files = list_agent_files()
+summary = build_archive_summary(conn, LOGS_DIR)
+mode_label = "LLM" if effective_use_llm() else "Mock"
+
+with st.sidebar:
+    st.markdown("<div class='oa-sidebar-title'>OperAI<br/>Archive Desk</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='oa-meta'>CASE {st.session_state['task_id'][:8].upper()} / {mode_label}</div>", unsafe_allow_html=True)
     st.divider()
+    c1, c2 = st.columns(2)
+    c1.metric("Agents", summary["agent_count"])
+    c2.metric("Runs", summary["run_count"])
+    c3, c4 = st.columns(2)
+    c3.metric("Tasks", summary["task_count"])
+    c4.metric("Logs", summary["log_count"])
+    st.divider()
+    st.caption("Recent Run Dossiers")
+    for run in _recent_runs(6):
+        label = f"{run['id'][:8]} · {run['status']}"
+        if st.button(label, key=f"side_run_{run['id']}", use_container_width=True):
+            st.session_state["active_run_id"] = run["id"]
+            st.rerun()
 
-    output = res["output"]
-    rid = res["run_id"]
+st.markdown(
+    f"""
+    <section class="oa-hero">
+      <div>
+        <div class="oa-meta">OPERATIONS INTELLIGENCE / ARCHIVE OS</div>
+        <h1>Campaign Dossier Desk</h1>
+        <p>创建 Task File，运行 Agent DAG，审阅 Run Dossier 与 Evidence Chain，最后归档导出。</p>
+      </div>
+      <div>{_stamp(mode_label, "green" if mode_label == "LLM" else "red")}</div>
+    </section>
+    """,
+    unsafe_allow_html=True,
+)
 
-    # Harness 信息条
-    st.caption(f"run `{rid[:8]}…` · {res.get('duration_ms', '—')}ms · validate() 已执行 · 日志已写入")
+task_tab, agent_tab, run_tab, evidence_tab, export_tab, settings_tab = st.tabs(
+    ["Task File", "Agent Index", "Run Dossier", "Evidence Chain", "Export Vault", "Settings"]
+)
 
-    # Fallback 警告
-    if isinstance(output, dict) and output.get("_operai_fallback"):
-        st.warning(f"⚠ {output['_operai_fallback']}")
+with task_tab:
+    st.markdown("### Task File")
+    left, right = st.columns([0.68, 0.32], gap="large")
+    with left:
+        st.text_input("Archive title", key="task_title", placeholder="例如：EchoPods Pro 新品上市战役")
+        st.text_area(
+            "Raw material",
+            key="raw_material",
+            height=240,
+            placeholder="粘贴活动说明、产品卖点、用户反馈、渠道数据或任意运营素材。",
+        )
+        st.text_area("Brand voice", key="brand_voice", height=90, placeholder="克制可信、年轻活泼、专业权威...")
+    with right:
+        packs = [p.id for p in list_packs(ROOT)]
+        current_pack = st.session_state.get("selected_pack", "media")
+        st.selectbox("Industry Pack", options=packs, index=packs.index(current_pack) if current_pack in packs else 0, key="selected_pack")
+        st.multiselect(
+            "Platforms",
+            options=["weibo", "wechat", "xhs", "douyin", "bilibili"],
+            default=st.session_state.get("platforms", ["weibo", "wechat", "xhs"]),
+            key="platforms",
+        )
+        _card("Default DAG", "D -> C -> N 会生成指标、洞察、内容和渠道排期，并写入 Run Dossier。", "PACK ROUTE")
+        st.button("Run Archive File", type="primary", use_container_width=True, on_click=_run_archive_task)
 
-    # 数据基座指标
-    snap = res.get("metrics_snap")
-    if snap and snap.summary:
-        with st.expander("数据基座 · 自动提取指标", expanded=False):
-            c1, c2, c3 = st.columns(3)
-            with c1:
-                st.metric("数字/百分比", len(snap.numbers))
-                if snap.numbers:
-                    st.caption(", ".join(snap.numbers[:8]))
-            with c2:
-                st.metric("金额", len(snap.amounts))
-                if snap.amounts:
-                    st.caption(", ".join(snap.amounts[:5]))
-            with c3:
-                st.metric("渠道/实体", len(snap.entities))
-                if snap.entities:
-                    st.caption(", ".join(snap.entities[:8]))
+with agent_tab:
+    st.markdown("### Agent Index")
+    cols = st.columns(2)
+    for idx, (aid, meta) in enumerate(agent_files.items()):
+        with cols[idx % 2]:
+            st.markdown(
+                f"""
+                <div class="oa-agent-card">
+                  <div class="oa-agent-code">{aid}</div>
+                  <div>
+                    <div class="oa-meta">{meta['tier']} / {meta['status']}</div>
+                    <h3>{meta['title']}</h3>
+                    <p>{meta['archive_role']}</p>
+                  </div>
+                </div>
+                """,
+                unsafe_allow_html=True,
+            )
 
-    # Agent 输出
-    st.markdown("**Agent 输出**")
-    render_output(aid, output)
-
-    # validate() 结果
-    st.markdown("**规则校验**")
-    try:
-        import importlib
-        mod = importlib.import_module(f"src.agents.{aid.lower()}_agent")
-        validate_fn = getattr(mod, "validate", None)
-        if validate_fn:
-            issues = validate_fn(output)
-            if issues:
-                for iss in issues:
-                    st.warning(iss)
-            else:
-                st.success("全部校验通过")
+with run_tab:
+    st.markdown("### Run Dossier")
+    rid = st.session_state.get("active_run_id")
+    if not rid:
+        st.info("尚未选择或生成 Run Dossier。先在 Task File 运行一次。")
+    else:
+        dossier = load_run_dossier(conn, LOGS_DIR, rid)
+        if not dossier:
+            st.error("Run Dossier 不存在。")
         else:
-            st.caption("此 Agent 未定义 validate()")
-    except Exception as e:
-        st.caption(f"校验执行异常：{e}")
+            h1, h2, h3, h4 = st.columns(4)
+            h1.metric("Status", dossier["status"])
+            h2.metric("Mode", "Mock" if dossier["mock"] else "LLM")
+            h3.metric("Pack", dossier.get("pack_id", "media"))
+            h4.metric("Steps", len(dossier["steps"]))
+            st.markdown(f"<div class='oa-run-id'>RUN {rid}</div>", unsafe_allow_html=True)
+            for step in dossier["steps"]:
+                st.markdown(
+                    f"<div class='oa-step'><b>{step['step']}</b><span>{step['status']}</span><small>{step.get('duration_ms') or 0} ms</small></div>",
+                    unsafe_allow_html=True,
+                )
+            outputs = dossier.get("agent_outputs") or {}
+            for aid, output in outputs.items():
+                with st.expander(f"{aid} · {agent_files.get(aid, {}).get('title', 'Agent')} Output", expanded=aid == "C"):
+                    if isinstance(output, dict):
+                        render_output(aid, output)
+                    else:
+                        st.write(output)
 
-    # 导出
-    st.divider()
-    st.markdown("**导出方案**")
-    if st.button("生成 Campaign Package (Markdown)", type="primary"):
+with evidence_tab:
+    st.markdown("### Evidence Chain")
+    rid = st.session_state.get("active_run_id")
+    if not rid:
+        st.info("运行后会显示证据链、节点状态和 JSONL trace。")
+    else:
+        chain = build_evidence_chain(conn, LOGS_DIR, rid)
+        cols = st.columns(len(chain["nodes"]))
+        for idx, node in enumerate(chain["nodes"]):
+            with cols[idx]:
+                tone = "green" if node["status"] in {"ready", "captured"} else "red"
+                st.markdown(
+                    f"<div class='oa-trace-node'><b>{idx + 1:02d}</b><span>{node['label']}</span>{_stamp(node['status'], tone)}</div>",
+                    unsafe_allow_html=True,
+                )
+        with st.expander("JSONL Trace Tail", expanded=True):
+            events = chain.get("trace_events") or []
+            if events:
+                st.json(events)
+            else:
+                st.caption("No trace events found.")
+
+with export_tab:
+    st.markdown("### Export Vault")
+    result = st.session_state.get("last_result")
+    rid = st.session_state.get("active_run_id") or (result or {}).get("run_id")
+    if not rid:
+        st.info("暂无可导出的归档物。")
+    else:
+        dossier = load_run_dossier(conn, LOGS_DIR, rid)
+        agent_outputs = dossier.get("agent_outputs") or _agent_outputs_for_export(result)
+        dag = list(agent_outputs.keys()) or ["D", "C", "N"]
         md = build_campaign_markdown(
-            title=f"{aid}-Agent 运营方案",
-            task_id=st.session_state["task_id"],
+            title=st.session_state.get("task_title", "OperAI Archive File"),
+            task_id=dossier.get("task_id", st.session_state["task_id"]),
             run_id=rid,
-            pack_id="default",
-            dag=[aid],
-            agent_outputs={aid: output},
+            pack_id=dossier.get("pack_id", st.session_state.get("selected_pack", "media")),
+            dag=dag,
+            agent_outputs=agent_outputs,
         )
-        st.download_button(
-            "下载方案 (.md)",
-            data=md.encode("utf-8"),
-            file_name=f"operai-{aid}-{rid[:8]}.md",
-            mime="text/markdown",
-            use_container_width=True,
-        )
-        with st.expander("预览"):
+        st.download_button("Download Markdown Dossier", md.encode("utf-8"), file_name=f"operai-dossier-{rid[:8]}.md", mime="text/markdown", use_container_width=True)
+        try:
+            docx_bytes = build_campaign_docx_bytes(
+                title=st.session_state.get("task_title", "OperAI Archive File"),
+                task_id=dossier.get("task_id", st.session_state["task_id"]),
+                run_id=rid,
+                pack_id=dossier.get("pack_id", st.session_state.get("selected_pack", "media")),
+                dag=dag,
+                agent_outputs=agent_outputs,
+            )
+            st.download_button(
+                "Download Word Dossier",
+                docx_bytes,
+                file_name=f"operai-dossier-{rid[:8]}.docx",
+                mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                use_container_width=True,
+            )
+        except Exception as exc:  # noqa: BLE001
+            st.warning(f"Word export unavailable: {exc}")
+        with st.expander("Markdown Preview"):
             st.code(md, language="markdown")
 
-elif res and not res.get("ok"):
-    st.error(res.get("error", "运行失败"))
+with settings_tab:
+    st.markdown("### Settings")
+    left, right = st.columns(2, gap="large")
+    with left:
+        st.checkbox("Force Mock mode", key="operai_force_mock")
+        st.checkbox("Short output", key="operai_short_output")
+        st.checkbox("Skip human review", key="operai_skip_review")
+        st.checkbox("Split models for D/C", key="operai_split_models")
+        st.text_input("Default model", key="operai_model")
+        st.text_input("D model", key="operai_model_d")
+        st.text_input("C model", key="operai_model_c")
+        st.slider("Temperature", min_value=0.0, max_value=1.2, step=0.05, key="operai_temperature")
+        if st.button("Apply runtime settings", type="primary"):
+            sync_from_session(st.session_state)
+            st.success("Runtime settings applied.")
+    with right:
+        words = effective_sensitive_words(ROOT, st.session_state)
+        text = st.text_area("Sensitive words", value="\n".join(words), height=260)
+        c1, c2 = st.columns(2)
+        if c1.button("Use In Session", use_container_width=True):
+            st.session_state["operai_sensitive_words"] = parse_sensitive_lines(text)
+            st.success("Session sensitive list updated.")
+        if c2.button("Save To File", use_container_width=True):
+            save_sensitive_words(ROOT, parse_sensitive_lines(text))
+            st.success("Sensitive words saved.")
