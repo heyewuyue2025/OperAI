@@ -10,13 +10,13 @@ from typing import Any
 import streamlit as st
 from dotenv import load_dotenv
 
-from src.archive_view import build_archive_summary, build_evidence_chain, list_agent_files, load_run_dossier
+from src.archive_view import build_evidence_chain, list_agent_files, load_run_dossier
 from src.export_campaign import build_campaign_docx_bytes, build_campaign_markdown
 from src.llm_runtime import effective_use_llm, sync_from_session
-from src.orchestrator import execute_pipeline, load_config, open_connection, resolve_paths, upsert_task
+from src.harness.plugin_registry import invoke
+from src.orchestrator import execute_pipeline, llm_settings_for_run, load_config, open_connection, resolve_paths, upsert_task
 from src.render_output import render as render_output
 from src.sensitive import effective_sensitive_words, parse_sensitive_lines, save_sensitive_words
-from src.storage.db import query_all
 
 
 load_dotenv()
@@ -41,6 +41,8 @@ st.session_state.setdefault("brand_voice", "")
 st.session_state.setdefault("platforms", ["weibo", "wechat", "xhs"])
 st.session_state.setdefault("last_result", None)
 st.session_state.setdefault("active_run_id", None)
+st.session_state.setdefault("active_agent_id", "C")
+st.session_state.setdefault("agent_results", {})
 st.session_state.setdefault("operai_force_mock", True)
 st.session_state.setdefault("operai_model", "gpt-4o-mini")
 st.session_state.setdefault("operai_temperature", float(cfg.get("llm", {}).get("temperature", 0.4)))
@@ -51,6 +53,60 @@ st.session_state.setdefault("operai_model_d", cfg.get("llm", {}).get("model_d", 
 st.session_state.setdefault("operai_model_c", cfg.get("llm", {}).get("model_c", "gpt-4o"))
 
 sync_from_session(st.session_state)
+
+
+AGENT_WORKSPACE_META: dict[str, dict[str, Any]] = {
+    "D": {
+        "focus": "把零散材料先变成事实、指标、洞察和风险清单。",
+        "needs": ["活动说明或业务背景", "平台数据、用户反馈、销售数字", "需要特别规避的风险表述"],
+        "outputs": ["关键指标与事实摘录", "可传播角度", "风险提示"],
+    },
+    "U": {
+        "focus": "把用户行为和反馈拆成人群、生命周期和触达动作。",
+        "needs": ["用户规模、活跃、留存、复购信息", "典型反馈或评论", "当前增长或流失问题"],
+        "outputs": ["用户分群", "留存/召回动作", "流失风险判断"],
+    },
+    "C": {
+        "focus": "把洞察转成微博、公众号、小红书等平台可用内容。",
+        "needs": ["产品卖点或活动主题", "品牌语气与禁用表达", "目标平台和核心受众"],
+        "outputs": ["多平台正文", "标题备选", "短视频口播与合规注记"],
+    },
+    "A": {
+        "focus": "把目标、预算、资源和节奏组织成可执行活动方案。",
+        "needs": ["活动目标和时间窗口", "预算或资源约束", "目标人群和关键节点"],
+        "outputs": ["活动阶段规划", "任务拆解", "预算与 ROI 假设"],
+    },
+    "N": {
+        "focus": "把内容草案安排到合适的平台、时间窗口和标签策略里。",
+        "needs": ["待发布内容", "目标平台", "发布时间限制或活动节奏"],
+        "outputs": ["发布排期", "标签建议", "平台注意事项"],
+    },
+    "F": {
+        "focus": "评估渠道效率、预算分配和转化路径。",
+        "needs": ["曝光、点击、转化、成本数据", "历史渠道表现", "投放目标"],
+        "outputs": ["渠道评分", "预算分配建议", "转化优化提示"],
+    },
+    "M": {
+        "focus": "把品牌、竞品和趋势整理成市场定位判断。",
+        "needs": ["品牌信息", "竞品材料", "目标客群和传播目标"],
+        "outputs": ["定位建议", "竞品观察", "渠道组合判断"],
+    },
+    "P": {
+        "focus": "把功能数据和用户反馈整理成体验问题与迭代优先级。",
+        "needs": ["功能使用数据", "用户评论或客服反馈", "转化漏斗或体验问题"],
+        "outputs": ["反馈归类", "体验问题", "迭代优先级"],
+    },
+    "S": {
+        "focus": "把社群语境转成互动话术、活动玩法和 KOL 线索。",
+        "needs": ["社群聊天或评论区材料", "活动目标", "潜在 KOL 或用户画像"],
+        "outputs": ["互动话术", "社群动作", "KOL 线索"],
+    },
+    "E": {
+        "focus": "把转化漏斗问题转成促销、CTA 和商品页动作。",
+        "needs": ["点击、加购、支付、客单价数据", "促销约束", "库存或商品信息"],
+        "outputs": ["漏斗诊断", "促销建议", "CTA 变体"],
+    },
+}
 
 
 def _stamp(label: str, tone: str = "red") -> str:
@@ -84,41 +140,24 @@ def _mini_panel(title: str, items: list[str], meta: str = "") -> None:
     )
 
 
-def _workflow_bar(active: int = 1) -> None:
-    steps = [
-        ("01", "录入任务", "素材、平台、表达口径"),
-        ("02", "运行链路", "D 提取 / C 生成 / N 排期"),
-        ("03", "复核结果", "输出、风险、状态"),
-        ("04", "交付导出", "Markdown / Word"),
-    ]
-    cols = st.columns(4, gap="small")
-    for idx, (num, title, desc) in enumerate(steps, start=1):
-        with cols[idx - 1]:
-            state = "is-active" if idx == active else ""
-            st.markdown(
-                f"<div class='oa-work-step {state}'><b>{num}</b><span>{title}</span><small>{desc}</small></div>",
-                unsafe_allow_html=True,
-            )
-
-
-def _sidebar_status(summary: dict[str, Any], mode_label: str) -> None:
-    metrics = [
-        ("智能体", summary["agent_count"]),
-        ("运行", summary["run_count"]),
-        ("任务", summary["task_count"]),
-        ("日志", summary["log_count"]),
-    ]
-    rows = "".join(f"<div><span>{label}</span><strong>{value}</strong></div>" for label, value in metrics)
+def _sidebar_directory(agent_files: dict[str, dict[str, str]], mode_label: str) -> None:
     st.markdown(
         f"""
         <div class="oa-side-head">
           <div class="oa-side-mark">OperAI</div>
-          <div class="oa-side-sub">运营工作台</div>
+          <div class="oa-side-sub">岗位工作台</div>
           <div class="oa-side-case">任务 {st.session_state['task_id'][:8].upper()} / {mode_label}</div>
         </div>
-        <div class="oa-side-rail">{rows}</div>
         """,
         unsafe_allow_html=True,
+    )
+    st.markdown("<div class='oa-side-section'>岗位目录</div>", unsafe_allow_html=True)
+    st.radio(
+        "岗位目录",
+        options=list(agent_files.keys()),
+        format_func=lambda aid: f"{aid} · {agent_files[aid]['title']}",
+        key="active_agent_id",
+        label_visibility="collapsed",
     )
 
 
@@ -137,13 +176,12 @@ def _zh_status(value: Any) -> str:
     }.get(str(value), str(value))
 
 
-def _recent_runs(limit: int = 8) -> list[dict[str, Any]]:
-    rows = query_all(
-        conn,
-        "SELECT id, task_id, status, mock, started_at, finished_at, pack_id FROM runs ORDER BY datetime(started_at) DESC LIMIT ?",
-        (limit,),
-    )
-    return [dict(r) for r in rows]
+def _current_agent_output(agent_id: str) -> Any:
+    stored = st.session_state.get("agent_results", {})
+    if isinstance(stored, dict) and agent_id in stored:
+        return stored[agent_id]
+    outputs = _agent_outputs_for_export(st.session_state.get("last_result"))
+    return outputs.get(agent_id)
 
 
 def _agent_outputs_for_export(result: dict[str, Any] | None) -> dict[str, dict[str, Any]]:
@@ -193,26 +231,53 @@ def _run_archive_task() -> None:
     st.rerun()
 
 
+def _run_current_agent(agent_id: str) -> None:
+    raw = st.session_state.get("raw_material", "").strip()
+    if not raw:
+        st.warning("请先为当前岗位提供业务材料。")
+        return
+    sync_from_session(st.session_state)
+    upstream = _agent_outputs_for_export(st.session_state.get("last_result"))
+    context = {
+        "task_id": st.session_state["task_id"],
+        "run_id": str(uuid.uuid4()),
+        "agent_id": agent_id,
+        "raw_input": raw,
+        "brand_voice": st.session_state.get("brand_voice", ""),
+        "platforms": st.session_state.get("platforms") or ["weibo", "wechat", "xhs"],
+        "pack_id": ARCHIVE_FLOW_ID,
+        "upstream": upstream,
+    }
+    with st.spinner(f"{agent_files[agent_id]['title']}正在处理材料..."):
+        output = invoke(
+            agent_id,
+            use_llm=effective_use_llm(),
+            context=context,
+            llm_cfg=llm_settings_for_run(cfg),
+            root=ROOT,
+        )
+    results = dict(st.session_state.get("agent_results") or {})
+    results[agent_id] = output
+    st.session_state["agent_results"] = results
+    st.rerun()
+
+
 agent_files = list_agent_files()
-summary = build_archive_summary(conn, LOGS_DIR)
 mode_label = "LLM" if effective_use_llm() else "Mock"
 
 with st.sidebar:
-    _sidebar_status(summary, mode_label)
-    st.markdown("<div class='oa-side-section'>最近运行</div>", unsafe_allow_html=True)
-    for run in _recent_runs(6):
-        label = f"{run['id'][:8]} · {_zh_status(run['status'])}"
-        if st.button(label, key=f"side_run_{run['id']}", use_container_width=True):
-            st.session_state["active_run_id"] = run["id"]
-            st.rerun()
+    _sidebar_directory(agent_files, mode_label)
 
+active_agent = st.session_state.get("active_agent_id", "C")
+agent_meta = agent_files.get(active_agent, agent_files["C"])
+workspace_meta = AGENT_WORKSPACE_META.get(active_agent, AGENT_WORKSPACE_META["C"])
 st.markdown(
     f"""
     <section class="oa-hero">
       <div>
-        <div class="oa-meta">运营情报 / 任务工作流</div>
-        <h1>运营任务控制台</h1>
-        <p>把活动说明、产品卖点、用户反馈和平台数据，转成可复核的内容方案、发布排期与交付文档。</p>
+        <div class="oa-meta">岗位工作台 / {agent_meta['tier']}</div>
+        <h1>{agent_meta['title']}工作台</h1>
+        <p>{workspace_meta['focus']}</p>
       </div>
       <div>{_stamp(mode_label, "green" if mode_label == "LLM" else "red")}</div>
     </section>
@@ -220,15 +285,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-_workflow_bar(1 if not st.session_state.get("active_run_id") else 3)
-
-task_tab, agent_tab, run_tab, evidence_tab, export_tab, settings_tab = st.tabs(
-    ["任务输入", "智能体编排", "结果复盘", "证据核查", "交付导出", "运行设置"]
+input_tab, output_tab, evidence_tab, export_tab, settings_tab = st.tabs(
+    ["岗位输入", "产出结果", "证据核查", "交付导出", "运行设置"]
 )
 
-with task_tab:
-    st.markdown("### 任务输入")
-    st.caption("先把业务上下文填清楚。系统会按 D -> C -> N 链路依次完成信息提取、内容生成和平台排期。")
+with input_tab:
+    st.markdown(f"### {agent_meta['title']} · 工作页")
+    st.caption("每个岗位都有自己的输入材料、判断重点和交付物。左侧目录切换岗位。")
     left, right = st.columns([0.64, 0.36], gap="large")
     with left:
         st.text_input("任务名称", key="task_title", placeholder="例如：EchoPods Pro 新品上市战役")
@@ -246,80 +309,41 @@ with task_tab:
             key="platforms",
         )
         _mini_panel(
-            "本次会产出",
-            [
-                "D：提取指标、事实、风险信号",
-                "C：生成多平台文案与标题",
-                "N：给出发布时间、标签和平台注意事项",
-            ],
-            "输出预览",
+            "这个岗位需要",
+            list(workspace_meta["needs"]),
+            "输入重点",
         )
         _mini_panel(
-            "运行前检查",
-            [
-                "材料越具体，方案越稳",
-                "平台至少选择一个",
-                "表达口径会约束文案风格",
-            ],
-            "准备状态",
+            "交付物",
+            list(workspace_meta["outputs"]),
+            "产出预期",
         )
-        st.button("生成运营方案", type="primary", use_container_width=True, on_click=_run_archive_task)
+        c1, c2 = st.columns(2)
+        c1.button(
+            f"运行{agent_meta['title']}",
+            type="primary",
+            use_container_width=True,
+            on_click=_run_current_agent,
+            args=(active_agent,),
+        )
+        c2.button("运行完整 D-C-N 链路", use_container_width=True, on_click=_run_archive_task)
 
-with agent_tab:
-    st.markdown("### 智能体编排")
-    st.caption("这里展示每个 Agent 在链路中的职责。当前默认执行 D -> C -> N，其他 Agent 保留为可扩展岗位。")
-    cols = st.columns(2)
-    for idx, (aid, meta) in enumerate(agent_files.items()):
-        with cols[idx % 2]:
-            st.markdown(
-                f"""
-                <div class="oa-agent-card">
-                  <div class="oa-agent-code">{aid}</div>
-                  <div>
-                    <div class="oa-meta">{meta['tier']} / {_zh_status(meta['status'])}</div>
-                    <h3>{meta['title']}</h3>
-                    <p>{meta['archive_role']}</p>
-                  </div>
-                </div>
-                """,
-                unsafe_allow_html=True,
-            )
-
-with run_tab:
-    st.markdown("### 结果复盘")
-    rid = st.session_state.get("active_run_id")
-    if not rid:
-        st.info("还没有运行结果。先在「任务输入」里生成一次运营方案。")
+with output_tab:
+    st.markdown(f"### {agent_meta['title']}产出")
+    output = _current_agent_output(active_agent)
+    if not output:
+        st.info(f"还没有{agent_meta['title']}产出。先在「岗位输入」里运行当前岗位。")
     else:
-        dossier = load_run_dossier(conn, LOGS_DIR, rid)
-        if not dossier:
-            st.error("找不到这次运行记录。")
+        if isinstance(output, dict):
+            render_output(active_agent, output)
         else:
-            h1, h2, h3 = st.columns(3)
-            h1.metric("状态", _zh_status(dossier["status"]))
-            h2.metric("模式", "模拟" if dossier["mock"] else "LLM")
-            h3.metric("完成步骤", len(dossier["steps"]))
-            st.markdown(f"<div class='oa-run-id'>RUN {rid}</div>", unsafe_allow_html=True)
-            st.markdown("#### 执行链路")
-            for step in dossier["steps"]:
-                st.markdown(
-                    f"<div class='oa-step'><b>{step['step']}</b><span>{_zh_status(step['status'])}</span><small>{step.get('duration_ms') or 0} ms</small></div>",
-                    unsafe_allow_html=True,
-                )
-            outputs = dossier.get("agent_outputs") or {}
-            st.markdown("#### Agent 输出")
-            for aid, output in outputs.items():
-                with st.expander(f"{aid} · {agent_files.get(aid, {}).get('title', '智能体')}输出", expanded=aid == "C"):
-                    if isinstance(output, dict):
-                        render_output(aid, output)
-                    else:
-                        st.write(output)
+            st.write(output)
 
 with evidence_tab:
     st.markdown("### 证据核查")
     rid = st.session_state.get("active_run_id")
     if not rid:
-        st.info("运行后会展示原始素材、指标提取、内容草案、排期建议和导出状态的可追溯链路。")
+        st.info("运行完整 D-C-N 链路后，会展示原始素材、指标提取、内容草案、排期建议和导出状态的可追溯链路。")
     else:
         chain = build_evidence_chain(conn, LOGS_DIR, rid)
         cols = st.columns(len(chain["nodes"]))

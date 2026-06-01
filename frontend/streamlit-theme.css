@@ -90,41 +90,6 @@
   font-weight: 650;
   color: rgba(244,234,216,.78) !important;
 }
-.oa-side-rail {
-  position: relative;
-  display: grid;
-  gap: 4px;
-  margin: 6px 0 28px;
-  padding-left: 18px;
-}
-.oa-side-rail::before {
-  content: "";
-  position: absolute;
-  left: 3px;
-  top: 8px;
-  bottom: 8px;
-  width: 1px;
-  background: linear-gradient(180deg, var(--oa-red), rgba(244,234,216,.18));
-}
-.oa-side-rail div {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(244,234,216,.10);
-}
-.oa-side-rail span {
-  color: rgba(244,234,216,.62) !important;
-  font-size: .84rem;
-}
-.oa-side-rail strong {
-  color: var(--oa-light) !important;
-  font-family: var(--oa-serif) !important;
-  font-size: 1.7rem;
-  line-height: 1;
-  font-weight: 800;
-}
 .oa-side-section {
   margin: 0 0 10px;
   color: rgba(244,234,216,.82) !important;
@@ -132,6 +97,27 @@
   font-size: .86rem;
   font-weight: 700;
   letter-spacing: 0;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] {
+  margin-top: 2px;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label {
+  min-height: 38px;
+  padding: 5px 0;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] p {
+  color: rgba(244,234,216,.78) !important;
+  font-size: .95rem !important;
+  font-weight: 650 !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) p {
+  color: var(--oa-light) !important;
+  font-weight: 850 !important;
+}
+[data-testid="stSidebar"] [data-testid="stRadio"] label:has(input:checked) {
+  border-left: 3px solid var(--oa-red);
+  padding-left: 8px;
+  background: rgba(191,59,37,.10);
 }
 
 .oa-hero {
