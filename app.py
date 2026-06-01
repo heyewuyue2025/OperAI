@@ -199,7 +199,7 @@ st.markdown(
     f"""
     <section class="oa-hero">
       <div>
-        <div class="oa-meta">运营情报 / 档案系统</div>
+        <div class="oa-meta">运营情报 / 任务工作流</div>
         <h1>运营任务控制台</h1>
         <p>把活动说明、产品卖点、用户反馈和平台数据，转成可复核的内容方案、发布排期与交付文档。</p>
       </div>
@@ -218,7 +218,7 @@ task_tab, agent_tab, run_tab, evidence_tab, export_tab, settings_tab = st.tabs(
 with task_tab:
     st.markdown("### 任务输入")
     st.caption("先把业务上下文填清楚。系统会按 D -> C -> N 链路依次完成信息提取、内容生成和平台排期。")
-    left, right = st.columns([0.68, 0.32], gap="large")
+    left, right = st.columns([0.64, 0.36], gap="large")
     with left:
         st.text_input("任务名称", key="task_title", placeholder="例如：EchoPods Pro 新品上市战役")
         st.text_area(
@@ -232,7 +232,6 @@ with task_tab:
         st.multiselect(
             "目标平台",
             options=["weibo", "wechat", "xhs", "douyin", "bilibili"],
-            default=st.session_state.get("platforms", ["weibo", "wechat", "xhs"]),
             key="platforms",
         )
         _mini_panel(
