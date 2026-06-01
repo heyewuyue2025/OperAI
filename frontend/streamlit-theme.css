@@ -85,9 +85,10 @@
 }
 .oa-side-case {
   margin-top: 18px;
-  font-family: var(--oa-mono) !important;
-  font-size: .72rem;
-  color: rgba(244,234,216,.66) !important;
+  font-family: var(--oa-sans) !important;
+  font-size: .82rem;
+  font-weight: 650;
+  color: rgba(244,234,216,.78) !important;
 }
 .oa-side-rail {
   position: relative;
@@ -126,10 +127,11 @@
 }
 .oa-side-section {
   margin: 0 0 10px;
-  color: rgba(244,234,216,.54) !important;
-  font-family: var(--oa-mono) !important;
-  font-size: .72rem;
-  letter-spacing: .04em;
+  color: rgba(244,234,216,.82) !important;
+  font-family: var(--oa-sans) !important;
+  font-size: .86rem;
+  font-weight: 700;
+  letter-spacing: 0;
 }
 
 .oa-hero {
@@ -170,10 +172,11 @@
 .oa-hero p { max-width: 680px; color: #40382d !important; font-size: .98rem; line-height: 1.7; }
 
 .oa-meta {
-  color: var(--oa-archive);
-  font-family: var(--oa-mono);
-  font-size: .72rem;
-  letter-spacing: .02em;
+  color: #51483c !important;
+  font-family: var(--oa-sans);
+  font-size: .82rem;
+  font-weight: 650;
+  letter-spacing: 0;
 }
 
 .oa-stamp {
@@ -182,8 +185,8 @@
   justify-content: center;
   border: 2px solid currentColor;
   color: var(--oa-red);
-  font-family: var(--oa-mono);
-  font-size: .72rem;
+  font-family: var(--oa-sans);
+  font-size: .8rem;
   font-weight: 800;
   padding: 8px 12px;
   transform: rotate(-4deg);
@@ -299,8 +302,9 @@
   left: 12px;
   top: 12px;
   color: var(--oa-red) !important;
-  font-family: var(--oa-mono);
-  font-size: .72rem;
+  font-family: var(--oa-sans);
+  font-size: .76rem;
+  font-weight: 800;
 }
 .oa-work-step span {
   color: var(--oa-ink) !important;
@@ -327,8 +331,9 @@
 .stTabs [data-baseweb="tab"] {
   border-radius: 0 !important;
   color: var(--oa-archive) !important;
-  font-family: var(--oa-mono) !important;
-  font-size: .78rem !important;
+  font-family: var(--oa-sans) !important;
+  font-size: .9rem !important;
+  font-weight: 700 !important;
   padding: 10px 16px !important;
 }
 .stTabs [data-baseweb="tab"] p { color: inherit !important; }
@@ -341,8 +346,9 @@
   border-radius: 0 !important;
   border: 1px solid var(--oa-ink) !important;
   color: var(--oa-ink) !important;
-  background: rgba(251,246,235,.92) !important;
-  font-family: var(--oa-mono) !important;
+  background: rgba(255,253,246,.94) !important;
+  font-family: var(--oa-sans) !important;
+  font-weight: 750 !important;
   transition: all 180ms cubic-bezier(.16,1,.3,1) !important;
 }
 [data-testid="stSidebar"] .stButton > button {
@@ -366,13 +372,15 @@
   transform: translateY(-1px);
 }
 .stButton > button[kind="primary"] {
-  background: var(--oa-ink) !important;
-  color: var(--oa-paper) !important;
-}
-.stButton > button[kind="primary"]:hover {
   background: var(--oa-red) !important;
   border-color: var(--oa-red) !important;
-  color: var(--oa-paper) !important;
+  color: #fff8ed !important;
+}
+.stButton > button[kind="primary"] * { color: #fff8ed !important; }
+.stButton > button[kind="primary"]:hover {
+  background: #9f2d1c !important;
+  border-color: #9f2d1c !important;
+  color: #fff8ed !important;
 }
 
 .stTextInput input, .stTextArea textarea, .stSelectbox [data-baseweb="select"], .stMultiSelect [data-baseweb="select"] {
