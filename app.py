@@ -91,15 +91,35 @@ def _workflow_bar(active: int = 1) -> None:
         ("03", "复核结果", "输出、风险、状态"),
         ("04", "交付导出", "Markdown / Word"),
     ]
-    html = "".join(
+    cols = st.columns(4, gap="small")
+    for idx, (num, title, desc) in enumerate(steps, start=1):
+        with cols[idx - 1]:
+            state = "is-active" if idx == active else ""
+            st.markdown(
+                f"<div class='oa-work-step {state}'><b>{num}</b><span>{title}</span><small>{desc}</small></div>",
+                unsafe_allow_html=True,
+            )
+
+
+def _sidebar_status(summary: dict[str, Any], mode_label: str) -> None:
+    metrics = [
+        ("智能体", summary["agent_count"]),
+        ("运行", summary["run_count"]),
+        ("任务", summary["task_count"]),
+        ("日志", summary["log_count"]),
+    ]
+    rows = "".join(f"<div><span>{label}</span><strong>{value}</strong></div>" for label, value in metrics)
+    st.markdown(
         f"""
-        <div class="oa-work-step {'is-active' if idx == active else ''}">
-          <b>{num}</b><span>{title}</span><small>{desc}</small>
+        <div class="oa-side-head">
+          <div class="oa-side-mark">OperAI</div>
+          <div class="oa-side-sub">运营工作台</div>
+          <div class="oa-side-case">任务 {st.session_state['task_id'][:8].upper()} / {mode_label}</div>
         </div>
-        """
-        for idx, (num, title, desc) in enumerate(steps, start=1)
+        <div class="oa-side-rail">{rows}</div>
+        """,
+        unsafe_allow_html=True,
     )
-    st.markdown(f"<div class='oa-workflow'>{html}</div>", unsafe_allow_html=True)
 
 
 def _zh_status(value: Any) -> str:
@@ -178,17 +198,8 @@ summary = build_archive_summary(conn, LOGS_DIR)
 mode_label = "LLM" if effective_use_llm() else "Mock"
 
 with st.sidebar:
-    st.markdown("<div class='oa-sidebar-title'>OperAI<br/>工作台</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='oa-meta'>任务 {st.session_state['task_id'][:8].upper()} / {mode_label}</div>", unsafe_allow_html=True)
-    st.divider()
-    c1, c2 = st.columns(2)
-    c1.metric("智能体", summary["agent_count"])
-    c2.metric("运行", summary["run_count"])
-    c3, c4 = st.columns(2)
-    c3.metric("任务", summary["task_count"])
-    c4.metric("日志", summary["log_count"])
-    st.divider()
-    st.caption("最近运行")
+    _sidebar_status(summary, mode_label)
+    st.markdown("<div class='oa-side-section'>最近运行</div>", unsafe_allow_html=True)
     for run in _recent_runs(6):
         label = f"{run['id'][:8]} · {_zh_status(run['status'])}"
         if st.button(label, key=f"side_run_{run['id']}", use_container_width=True):
