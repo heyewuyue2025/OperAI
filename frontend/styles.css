@@ -34,19 +34,20 @@ button, textarea, input { font: inherit; }
 
 .scan-field {
   position: fixed;
-  width: 260px;
-  height: 260px;
-  border: 1px solid rgba(189, 53, 31, 0.24);
+  width: 96px;
+  height: 96px;
+  border: 0;
   border-radius: 50%;
   pointer-events: none;
   transform: translate3d(-50%, -50%, 0);
   z-index: 50;
   opacity: 0;
   transition: opacity var(--fast) var(--ease-out);
-  background: radial-gradient(circle, rgba(224, 82, 50, 0.12), transparent 62%);
+  background: radial-gradient(circle, rgba(224, 82, 50, 0.10), rgba(224, 82, 50, 0.04) 34%, transparent 70%);
+  filter: blur(2px);
   mix-blend-mode: multiply;
 }
-.scan-field.active { opacity: 1; }
+.scan-field.active { opacity: .72; }
 
 .nav {
   position: sticky;
@@ -86,7 +87,7 @@ button, textarea, input { font: inherit; }
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   color: var(--archive);
-  text-transform: uppercase;
+  letter-spacing: .02em;
 }
 .nav-links a {
   position: relative;
@@ -122,7 +123,6 @@ button, textarea, input { font: inherit; }
   cursor: pointer;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
-  text-transform: uppercase;
   overflow: hidden;
   transition: color var(--fast) var(--ease-out), border-color var(--fast) var(--ease-out), transform var(--fast) var(--ease-out);
 }
@@ -171,7 +171,7 @@ button, textarea, input { font: inherit; }
   font-family: var(--font-mono);
   color: var(--archive);
   font-size: var(--text-xs);
-  text-transform: uppercase;
+  letter-spacing: .02em;
 }
 .hero-title {
   margin-top: var(--s-5);
@@ -205,7 +205,6 @@ button, textarea, input { font: inherit; }
   font-family: var(--font-mono);
   font-size: var(--text-xs);
   font-weight: 700;
-  text-transform: uppercase;
   transform: rotate(-4deg);
 }
 .stamp.dark { color: var(--evidence-text); border-color: rgba(239, 227, 207, 0.72); }
@@ -236,6 +235,7 @@ button, textarea, input { font: inherit; }
 .section-note {
   color: var(--archive);
   font-size: var(--text-sm);
+  line-height: 1.75;
 }
 
 .file-card,
@@ -366,7 +366,7 @@ button, textarea, input { font: inherit; }
   font-family: var(--font-mono);
   color: var(--archive);
   font-size: var(--text-xs);
-  text-transform: uppercase;
+  letter-spacing: .02em;
 }
 
 .agent-file-hero {

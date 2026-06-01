@@ -3,47 +3,47 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>OperAI Archive OS · 运营情报档案馆</title>
+<title>OperAI Archive OS · 运营任务控制台</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <header class="nav">
-  <a class="nav-brand" href="index.html">OperAI 档案馆</a>
-  <nav class="nav-links" aria-label="档案馆导航">
+  <a class="nav-brand" href="index.html">OperAI 工作台</a>
+  <nav class="nav-links" aria-label="工作台导航">
     <a href="#system">系统</a>
     <a href="#agents">智能体索引</a>
     <a href="#evidence">证据链</a>
     <a href="#deployment">部署</a>
   </nav>
-  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>打开档案台</a>
+  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>打开工作台</a>
 </header>
 
 <main>
   <section class="hero">
     <div class="reveal visible">
-      <p class="eyebrow">案卷 OPA-2026-ARCHIVE / 运营情报</p>
+      <p class="eyebrow">OPA-2026 / 运营任务控制台</p>
       <h1 class="hero-title">OperAI<br>Archive OS</h1>
-      <p class="hero-desc">把运营任务变成可检索、可追踪、可验证的情报档案。十个 Agent 不是聊天窗口，而是一个会建档、扫描、生成、校验和归档的运营研究系统。</p>
+      <p class="hero-desc">把活动说明、产品卖点、用户反馈和平台数据转成可复核的内容方案、发布排期与交付文档。十个 Agent 不是聊天窗口，而是一套能分工、生成、校验和交付的运营工作流。</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>进入档案台</a>
+        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>进入工作台</a>
         <a class="btn" href="#agents">浏览智能体索引</a>
       </div>
     </div>
     <aside class="hero-ledger file-card reveal delay-1">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
         <div>
-          <p class="file-meta">当前档案状态</p>
-          <h2 style="font-family:var(--font-display);font-size:var(--text-2xl);line-height:1;margin-top:10px;">10 份智能体档案<br>1 条标准运行链路</h2>
+          <p class="file-meta">当前系统状态</p>
+          <h2 style="font-family:var(--font-display);font-size:var(--text-2xl);line-height:1;margin-top:10px;">10 个运营岗位<br>1 条标准生成链路</h2>
         </div>
         <span class="stamp">已索引</span>
       </div>
       <table class="ledger-table" style="margin-top:24px;">
         <tr><th>层级</th><th>记录</th></tr>
-        <tr><td>任务案卷</td><td>原始素材 + 平台 + 智能体链路</td></tr>
-        <tr><td>运行档案</td><td>步骤、输出、耗时、降级标记</td></tr>
-        <tr><td>证据链</td><td>指标、摘录、校验、日志</td></tr>
-        <tr><td>导出库</td><td>Markdown 与 Word 归档物</td></tr>
+        <tr><td>任务输入</td><td>素材、平台、表达口径</td></tr>
+        <tr><td>结果复盘</td><td>步骤、输出、耗时、降级标记</td></tr>
+        <tr><td>证据核查</td><td>指标、摘录、校验、日志</td></tr>
+        <tr><td>交付导出</td><td>Markdown 与 Word 方案</td></tr>
       </table>
     </aside>
   </section>
@@ -51,27 +51,27 @@
   <section class="section" id="system">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">档案系统地图</p>
-        <h2 class="section-title">从素材到归档，<br>每一步都有编号。</h2>
+        <p class="section-kicker">工作流地图</p>
+        <h2 class="section-title">从素材到方案，<br>每一步都有依据。</h2>
       </div>
-      <p class="section-note">Archive OS 把运营工作拆成五类可追溯对象。它保留 AI 的生成能力，但让结果有证据、有来源、有运行轨迹。</p>
+      <p class="section-note">Archive OS 把运营工作拆成五个清晰动作。它保留 AI 的生成能力，但让结果能复盘、能解释、能交付。</p>
     </div>
     <div class="archive-map">
-      <article class="map-node reveal"><span>01</span><strong>任务案卷</strong><p>输入素材、标题、平台和智能体链路，形成可运行案卷。</p></article>
-      <article class="map-node reveal delay-1"><span>02</span><strong>智能体索引</strong><p>十个运营 Agent 作为可检索研究工具，而不是普通菜单。</p></article>
-      <article class="map-node reveal delay-2"><span>03</span><strong>运行档案</strong><p>每次执行都记录步骤、状态、耗时、输出和降级标记。</p></article>
-      <article class="map-node reveal delay-3"><span>04</span><strong>证据链</strong><p>原始素材、指标、洞察、文案、排期与校验串成证据链。</p></article>
-      <article class="map-node reveal delay-3"><span>05</span><strong>导出库</strong><p>最终 Markdown/Word 不只是下载文件，而是归档交付物。</p></article>
+      <article class="map-node reveal"><span>01</span><strong>任务输入</strong><p>录入活动素材、目标平台和表达口径，明确生成边界。</p></article>
+      <article class="map-node reveal delay-1"><span>02</span><strong>智能体编排</strong><p>十个运营 Agent 作为可扩展岗位，默认链路先跑 D/C/N。</p></article>
+      <article class="map-node reveal delay-2"><span>03</span><strong>结果复盘</strong><p>每次执行都记录步骤、状态、耗时、输出和降级标记。</p></article>
+      <article class="map-node reveal delay-3"><span>04</span><strong>证据核查</strong><p>原始素材、指标、洞察、文案、排期与校验串成可追溯链路。</p></article>
+      <article class="map-node reveal delay-3"><span>05</span><strong>交付导出</strong><p>最终 Markdown/Word 是可继续编辑、复核和提交的运营方案。</p></article>
     </div>
   </section>
 
   <section class="section" id="agents">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">智能体索引 / 10 份档案</p>
+        <p class="section-kicker">智能体索引 / 10 个岗位</p>
         <h2 class="section-title">十个岗位，<br>十份研究工具档案。</h2>
       </div>
-      <p class="section-note">每个 Agent 有输入、输出、校验规则和上下游关系。打开它，像抽出一份可执行的研究卡。</p>
+      <p class="section-note">每个 Agent 有明确输入、输出、校验规则和上下游关系。它们像运营团队里的岗位，而不是一组零散按钮。</p>
     </div>
     <div class="index-grid">
       <a class="index-row reveal" href="d-agent.html"><span class="index-id">D</span><span><b class="index-title">数据运营</b><br><small class="index-desc">指标提取 · 洞察 · 风险扫描</small></span><span class="index-tag">数据底座</span></a>
@@ -90,17 +90,17 @@
   <section class="section" id="evidence">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">证据链实验室</p>
-        <h2 class="section-title">生成不是终点，<br>证据链才是产品。</h2>
+        <p class="section-kicker">证据核查</p>
+        <h2 class="section-title">生成不是终点，<br>能解释才有价值。</h2>
       </div>
-      <p class="section-note">D/C/N 每一步都写入 SQLite 与 JSONL。工作台会把这些记录呈现为可审阅的运行档案。</p>
+      <p class="section-note">D/C/N 每一步都写入 SQLite 与 JSONL。工作台会把这些记录呈现为可审阅的运行结果。</p>
     </div>
     <div class="evidence-panel reveal">
       <div class="trace-list">
         <div class="trace-node hot">01 原始素材 -> 指标 / 证据摘录已捕获</div>
         <div class="trace-node">02 D 洞察 -> C 草案 / 风险信号已注入</div>
         <div class="trace-node">03 C 草案 -> N 排期 / 平台规则已应用</div>
-        <div class="trace-node hot">04 校验门禁 -> 导出库 / 归档物已就绪</div>
+        <div class="trace-node hot">04 校验门禁 -> 交付导出 / 方案已就绪</div>
       </div>
     </div>
   </section>
@@ -108,7 +108,7 @@
   <section class="section" id="deployment">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">部署台账</p>
+        <p class="section-kicker">工程接入</p>
         <h2 class="section-title">本地可跑，<br>企业可接。</h2>
       </div>
       <p class="section-note">保留 Mock 模式、FastAPI、Webhook、导出和日志链路。视觉升级不牺牲工程可用性。</p>
@@ -122,8 +122,8 @@
 </main>
 
 <footer>
-  <span>OPERAI ARCHIVE OS / 运营情报</span>
-  <span>任务案卷 · 运行档案 · 证据链 · 导出库</span>
+  <span>OPERAI ARCHIVE OS / 运营任务控制台</span>
+  <span>任务输入 · 结果复盘 · 证据核查 · 交付导出</span>
 </footer>
 
 <script src="main.js"></script>

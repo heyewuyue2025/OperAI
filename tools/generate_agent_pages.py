@@ -8,7 +8,7 @@ AGENTS = {
         "code": "D",
         "name": "数据运营",
         "tier": "数据底座",
-        "role": "把原始运营素材转为可验证指标、洞察、角度与风险信号。",
+        "role": "把原始运营素材转为可验证指标、洞察、传播角度与风险信号。",
         "input": "活动说明、数据摘要、舆情材料、平台反馈、销售或转化数字。",
         "output": "insights、angles、risk_flags、evidence_spans、结构化 metrics。",
         "verify": "证据摘录必须来自原文；风险规则扫描承诺收益、夸大表述、敏感信息。",
@@ -35,7 +35,7 @@ AGENTS = {
         "role": "把洞察转换成多平台文案、标题变体、短视频口播与合规注记。",
         "input": "D-Agent 洞察、风险信号、品牌调性、目标平台。",
         "output": "drafts、title_variants、short_video_script、compliance_notes。",
-        "verify": "平台字数、禁用词、金融风险提示、跨平台核心数字一致性。",
+        "verify": "平台字数、禁用词、跨平台核心数字一致性。",
         "example": "同一产品卖点会分别生成微博扩散、小红书种草、公众号深度叙事。",
         "upstream": "D / U / M",
         "downstream": "N / S / E",
@@ -44,7 +44,7 @@ AGENTS = {
         "code": "A",
         "name": "活动运营",
         "tier": "模型增强",
-        "role": "把目标、预算、节奏和资源组织成可执行战役档案。",
+        "role": "把目标、预算、节奏和资源组织成可执行活动方案。",
         "input": "活动目标、预算区间、时间窗口、资源约束、目标人群。",
         "output": "campaign_structure、timeline、budget_hints、roi_estimate、task_breakdown。",
         "verify": "预算分配不得超过总额；ROI 估算需暴露假设。",
@@ -62,7 +62,7 @@ AGENTS = {
         "verify": "同平台排期不能重复；标签数量需要精简；平台规则优先于模型建议。",
         "example": "微博安排互动高峰，小红书安排社区活跃窗口，公众号安排长阅读窗口。",
         "upstream": "C",
-        "downstream": "导出库",
+        "downstream": "交付导出",
     },
     "f": {
         "code": "F",
@@ -80,7 +80,7 @@ AGENTS = {
         "code": "M",
         "name": "市场运营",
         "tier": "策略研判",
-        "role": "把品牌定位、竞品、趋势和渠道组合整理成市场判断档案。",
+        "role": "把品牌定位、竞品、趋势和渠道组合整理成市场判断。",
         "input": "品牌信息、竞品材料、市场趋势、目标客群、传播目标。",
         "output": "positioning、competitor_notes、channel_mix、trend_insights。",
         "verify": "竞品判断需区分事实与推断；定位建议必须回到输入材料。",
@@ -122,7 +122,7 @@ AGENTS = {
         "verify": "促销建议不能承诺收益；CTA 需匹配平台和客群。",
         "example": "把加购未支付人群转为限时权益、客服跟进和页面 CTA 优化。",
         "upstream": "F / S / C",
-        "downstream": "导出库",
+        "downstream": "交付导出",
     },
 }
 
@@ -134,20 +134,20 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>{agent["code"]}-Agent · {agent["name"]} — OperAI Archive</title>
+<title>{agent["code"]}-Agent · {agent["name"]} — OperAI 工作台</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 <header class="nav">
-  <a class="nav-brand" href="index.html">OperAI 档案馆</a>
+  <a class="nav-brand" href="index.html">OperAI 工作台</a>
   <nav class="nav-links" aria-label="智能体索引">{nav}</nav>
-  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>打开档案台</a>
+  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>打开工作台</a>
 </header>
 
 <main>
   <section class="agent-file-hero">
     <div class="file-card reveal visible">
-      <p class="file-meta">智能体档案 / {agent["code"]} / {agent["tier"]}</p>
+      <p class="file-meta">智能体岗位 / {agent["code"]} / {agent["tier"]}</p>
       <div class="agent-code">{agent["code"]}</div>
       <span class="stamp">就绪</span>
     </div>
@@ -156,7 +156,7 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
       <h1 class="agent-title">{agent["name"]}<br>Agent</h1>
       <p class="hero-desc">{agent["role"]}</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>在档案台运行</a>
+        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>在工作台运行</a>
         <a class="btn" href="index.html#agents">返回索引</a>
       </div>
     </div>
@@ -173,7 +173,7 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
 
     <section class="agent-sections">
       <article class="dossier-panel reveal" id="role">
-        <p class="section-kicker">01 / 档案职责</p>
+        <p class="section-kicker">01 / 工作职责</p>
         <h2 class="section-title" style="font-size:var(--text-2xl);">研究职责</h2>
         <p>{agent["role"]}</p>
       </article>
@@ -190,7 +190,7 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
         <p class="section-kicker">03 / 输出台账</p>
         <table class="ledger-table">
           <tr><th>结构化输出</th><td>{agent["output"]}</td></tr>
-          <tr><th>示例档案</th><td>{agent["example"]}</td></tr>
+          <tr><th>示例场景</th><td>{agent["example"]}</td></tr>
         </table>
       </article>
 
@@ -198,7 +198,7 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
         <div class="trace-list">
           <div class="trace-node hot">校验规则</div>
           <div class="trace-node">{agent["verify"]}</div>
-          <div class="trace-node">只有输出通过档案检查后，状态章才会点亮。</div>
+          <div class="trace-node">只有输出通过规则检查后，状态章才会点亮。</div>
         </div>
       </article>
 
@@ -207,7 +207,7 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
         <table class="ledger-table">
           <tr><th>上游</th><td>{agent["upstream"]}</td></tr>
           <tr><th>下游</th><td>{agent["downstream"]}</td></tr>
-          <tr><th>归档动作</th><td>打开档案台，创建任务案卷，运行该 Agent，再审阅运行档案和证据链。</td></tr>
+          <tr><th>工作动作</th><td>打开工作台，录入任务材料，运行该 Agent，再审阅结果和证据核查。</td></tr>
         </table>
       </article>
     </section>
@@ -215,7 +215,7 @@ def render_page(slug: str, agent: dict[str, str]) -> str:
 </main>
 
 <footer>
-  <span>智能体档案 / {agent["code"]} / {agent["name"]}</span>
+  <span>智能体岗位 / {agent["code"]} / {agent["name"]}</span>
   <span>OperAI Archive OS</span>
 </footer>
 <script src="main.js"></script>

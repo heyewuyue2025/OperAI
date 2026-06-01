@@ -1,4 +1,4 @@
-"""OperAI 档案工作台。"""
+"""OperAI 运营工作台。"""
 from __future__ import annotations
 
 import json
@@ -28,14 +28,14 @@ _db_path, LOGS_DIR = resolve_paths(ROOT, cfg)
 
 ARCHIVE_FLOW_ID = "archive"
 
-st.set_page_config(page_title="OperAI 档案工作台", layout="wide")
+st.set_page_config(page_title="OperAI 运营工作台", layout="wide")
 
 _theme_path = ROOT / "frontend" / "streamlit-theme.css"
 if _theme_path.is_file():
     st.markdown(f"<style>{_theme_path.read_text(encoding='utf-8')}</style>", unsafe_allow_html=True)
 
 st.session_state.setdefault("task_id", str(uuid.uuid4()))
-st.session_state.setdefault("task_title", "未命名任务案卷")
+st.session_state.setdefault("task_title", "未命名运营任务")
 st.session_state.setdefault("raw_material", "")
 st.session_state.setdefault("brand_voice", "")
 st.session_state.setdefault("platforms", ["weibo", "wechat", "xhs"])
@@ -70,16 +70,49 @@ def _card(title: str, body: str, meta: str = "") -> None:
     )
 
 
+def _mini_panel(title: str, items: list[str], meta: str = "") -> None:
+    body = "".join(f"<li>{item}</li>" for item in items)
+    st.markdown(
+        f"""
+        <div class="oa-mini-panel">
+          <div class="oa-meta">{meta}</div>
+          <h3>{title}</h3>
+          <ul>{body}</ul>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
+def _workflow_bar(active: int = 1) -> None:
+    steps = [
+        ("01", "录入任务", "素材、平台、表达口径"),
+        ("02", "运行链路", "D 提取 / C 生成 / N 排期"),
+        ("03", "复核结果", "输出、风险、状态"),
+        ("04", "交付导出", "Markdown / Word"),
+    ]
+    html = "".join(
+        f"""
+        <div class="oa-work-step {'is-active' if idx == active else ''}">
+          <b>{num}</b><span>{title}</span><small>{desc}</small>
+        </div>
+        """
+        for idx, (num, title, desc) in enumerate(steps, start=1)
+    )
+    st.markdown(f"<div class='oa-workflow'>{html}</div>", unsafe_allow_html=True)
+
+
 def _zh_status(value: Any) -> str:
     return {
+        "ready": "可用",
+        "stub": "Mock 可用",
+        "missing": "缺失",
         "success": "成功",
         "failed": "失败",
         "running": "运行中",
         "need_review": "待复核",
-        "ready": "就绪",
         "captured": "已捕获",
         "implicit": "已推断",
-        "missing": "缺失",
         "blocked": "阻断",
     }.get(str(value), str(value))
 
@@ -109,26 +142,26 @@ def _agent_outputs_for_export(result: dict[str, Any] | None) -> dict[str, dict[s
 def _run_archive_task() -> None:
     raw = st.session_state.get("raw_material", "").strip()
     if not raw:
-        st.warning("任务案卷缺少原始素材。")
+        st.warning("请先粘贴运营素材、活动说明或用户反馈。")
         return
     sync_from_session(st.session_state)
     upsert_task(
         conn,
         task_id=st.session_state["task_id"],
-        title=st.session_state["task_title"].strip() or "未命名任务案卷",
+        title=st.session_state["task_title"].strip() or "未命名运营任务",
         brand_voice=st.session_state.get("brand_voice", ""),
         platforms=st.session_state.get("platforms") or ["weibo", "wechat", "xhs"],
         raw_input=raw,
         pack_id=ARCHIVE_FLOW_ID,
     )
     started = time.time()
-    with st.spinner("档案台正在装配案卷、扫描证据链、运行智能体链路..."):
+    with st.spinner("正在提取关键信息、生成内容方案、匹配平台排期..."):
         result = execute_pipeline(
             ROOT,
             conn,
             cfg,
             task_id=st.session_state["task_id"],
-            title=st.session_state["task_title"].strip() or "未命名任务案卷",
+            title=st.session_state["task_title"].strip() or "未命名运营任务",
             brand_voice=st.session_state.get("brand_voice", ""),
             platforms=st.session_state.get("platforms") or ["weibo", "wechat", "xhs"],
             raw_input=raw,
@@ -145,8 +178,8 @@ summary = build_archive_summary(conn, LOGS_DIR)
 mode_label = "LLM" if effective_use_llm() else "Mock"
 
 with st.sidebar:
-    st.markdown("<div class='oa-sidebar-title'>OperAI<br/>档案台</div>", unsafe_allow_html=True)
-    st.markdown(f"<div class='oa-meta'>案卷 {st.session_state['task_id'][:8].upper()} / {mode_label}</div>", unsafe_allow_html=True)
+    st.markdown("<div class='oa-sidebar-title'>OperAI<br/>工作台</div>", unsafe_allow_html=True)
+    st.markdown(f"<div class='oa-meta'>任务 {st.session_state['task_id'][:8].upper()} / {mode_label}</div>", unsafe_allow_html=True)
     st.divider()
     c1, c2 = st.columns(2)
     c1.metric("智能体", summary["agent_count"])
@@ -155,7 +188,7 @@ with st.sidebar:
     c3.metric("任务", summary["task_count"])
     c4.metric("日志", summary["log_count"])
     st.divider()
-    st.caption("最近运行档案")
+    st.caption("最近运行")
     for run in _recent_runs(6):
         label = f"{run['id'][:8]} · {_zh_status(run['status'])}"
         if st.button(label, key=f"side_run_{run['id']}", use_container_width=True):
@@ -167,8 +200,8 @@ st.markdown(
     <section class="oa-hero">
       <div>
         <div class="oa-meta">运营情报 / 档案系统</div>
-        <h1>任务档案工作台</h1>
-        <p>创建任务案卷，运行智能体链路，审阅运行档案与证据链，最后归档导出。</p>
+        <h1>运营任务控制台</h1>
+        <p>把活动说明、产品卖点、用户反馈和平台数据，转成可复核的内容方案、发布排期与交付文档。</p>
       </div>
       <div>{_stamp(mode_label, "green" if mode_label == "LLM" else "red")}</div>
     </section>
@@ -176,34 +209,55 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+_workflow_bar(1 if not st.session_state.get("active_run_id") else 3)
+
 task_tab, agent_tab, run_tab, evidence_tab, export_tab, settings_tab = st.tabs(
-    ["任务案卷", "智能体索引", "运行档案", "证据链", "导出库", "设置"]
+    ["任务输入", "智能体编排", "结果复盘", "证据核查", "交付导出", "运行设置"]
 )
 
 with task_tab:
-    st.markdown("### 任务案卷")
+    st.markdown("### 任务输入")
+    st.caption("先把业务上下文填清楚。系统会按 D -> C -> N 链路依次完成信息提取、内容生成和平台排期。")
     left, right = st.columns([0.68, 0.32], gap="large")
     with left:
-        st.text_input("案卷标题", key="task_title", placeholder="例如：EchoPods Pro 新品上市战役")
+        st.text_input("任务名称", key="task_title", placeholder="例如：EchoPods Pro 新品上市战役")
         st.text_area(
-            "原始素材",
+            "输入材料",
             key="raw_material",
-            height=240,
-            placeholder="粘贴活动说明、产品卖点、用户反馈、渠道数据或任意运营素材。",
+            height=260,
+            placeholder="粘贴活动说明、产品卖点、用户反馈、渠道数据、竞品观察或任何需要转化成运营方案的材料。",
         )
-        st.text_area("品牌语气", key="brand_voice", height=90, placeholder="克制可信、年轻活泼、专业权威...")
+        st.text_area("表达口径", key="brand_voice", height=88, placeholder="例如：克制可信、年轻活泼、专业权威；或写明禁用词、语气边界。")
     with right:
         st.multiselect(
-            "发布平台",
+            "目标平台",
             options=["weibo", "wechat", "xhs", "douyin", "bilibili"],
             default=st.session_state.get("platforms", ["weibo", "wechat", "xhs"]),
             key="platforms",
         )
-        _card("默认智能体链路", "D -> C -> N 会生成指标、洞察、内容和渠道排期，并写入运行档案。", "运行路径")
-        st.button("运行任务案卷", type="primary", use_container_width=True, on_click=_run_archive_task)
+        _mini_panel(
+            "本次会产出",
+            [
+                "D：提取指标、事实、风险信号",
+                "C：生成多平台文案与标题",
+                "N：给出发布时间、标签和平台注意事项",
+            ],
+            "输出预览",
+        )
+        _mini_panel(
+            "运行前检查",
+            [
+                "材料越具体，方案越稳",
+                "平台至少选择一个",
+                "表达口径会约束文案风格",
+            ],
+            "准备状态",
+        )
+        st.button("生成运营方案", type="primary", use_container_width=True, on_click=_run_archive_task)
 
 with agent_tab:
-    st.markdown("### 智能体索引")
+    st.markdown("### 智能体编排")
+    st.caption("这里展示每个 Agent 在链路中的职责。当前默认执行 D -> C -> N，其他 Agent 保留为可扩展岗位。")
     cols = st.columns(2)
     for idx, (aid, meta) in enumerate(agent_files.items()):
         with cols[idx % 2]:
@@ -212,7 +266,7 @@ with agent_tab:
                 <div class="oa-agent-card">
                   <div class="oa-agent-code">{aid}</div>
                   <div>
-                    <div class="oa-meta">{meta['tier']} / {meta['status']}</div>
+                    <div class="oa-meta">{meta['tier']} / {_zh_status(meta['status'])}</div>
                     <h3>{meta['title']}</h3>
                     <p>{meta['archive_role']}</p>
                   </div>
@@ -222,26 +276,28 @@ with agent_tab:
             )
 
 with run_tab:
-    st.markdown("### 运行档案")
+    st.markdown("### 结果复盘")
     rid = st.session_state.get("active_run_id")
     if not rid:
-        st.info("尚未选择或生成运行档案。先在任务案卷中运行一次。")
+        st.info("还没有运行结果。先在「任务输入」里生成一次运营方案。")
     else:
         dossier = load_run_dossier(conn, LOGS_DIR, rid)
         if not dossier:
-            st.error("运行档案不存在。")
+            st.error("找不到这次运行记录。")
         else:
             h1, h2, h3 = st.columns(3)
             h1.metric("状态", _zh_status(dossier["status"]))
             h2.metric("模式", "模拟" if dossier["mock"] else "LLM")
-            h3.metric("步骤", len(dossier["steps"]))
+            h3.metric("完成步骤", len(dossier["steps"]))
             st.markdown(f"<div class='oa-run-id'>RUN {rid}</div>", unsafe_allow_html=True)
+            st.markdown("#### 执行链路")
             for step in dossier["steps"]:
                 st.markdown(
                     f"<div class='oa-step'><b>{step['step']}</b><span>{_zh_status(step['status'])}</span><small>{step.get('duration_ms') or 0} ms</small></div>",
                     unsafe_allow_html=True,
                 )
             outputs = dossier.get("agent_outputs") or {}
+            st.markdown("#### Agent 输出")
             for aid, output in outputs.items():
                 with st.expander(f"{aid} · {agent_files.get(aid, {}).get('title', '智能体')}输出", expanded=aid == "C"):
                     if isinstance(output, dict):
@@ -250,10 +306,10 @@ with run_tab:
                         st.write(output)
 
 with evidence_tab:
-    st.markdown("### 证据链")
+    st.markdown("### 证据核查")
     rid = st.session_state.get("active_run_id")
     if not rid:
-        st.info("运行后会显示证据链、节点状态和 JSONL 轨迹。")
+        st.info("运行后会展示原始素材、指标提取、内容草案、排期建议和导出状态的可追溯链路。")
     else:
         chain = build_evidence_chain(conn, LOGS_DIR, rid)
         cols = st.columns(len(chain["nodes"]))
@@ -264,7 +320,7 @@ with evidence_tab:
                     f"<div class='oa-trace-node'><b>{idx + 1:02d}</b><span>{node['label']}</span>{_stamp(_zh_status(node['status']), tone)}</div>",
                     unsafe_allow_html=True,
                 )
-        with st.expander("JSONL 轨迹尾部", expanded=True):
+        with st.expander("运行日志尾部", expanded=True):
             events = chain.get("trace_events") or []
             if events:
                 st.json(events)
@@ -272,27 +328,27 @@ with evidence_tab:
                 st.caption("暂无轨迹事件。")
 
 with export_tab:
-    st.markdown("### 导出库")
+    st.markdown("### 交付导出")
     result = st.session_state.get("last_result")
     rid = st.session_state.get("active_run_id") or (result or {}).get("run_id")
     if not rid:
-        st.info("暂无可导出的归档物。")
+        st.info("暂无可导出的方案。生成一次运营方案后，可在这里下载 Markdown 或 Word。")
     else:
         dossier = load_run_dossier(conn, LOGS_DIR, rid)
         agent_outputs = dossier.get("agent_outputs") or _agent_outputs_for_export(result)
         dag = list(agent_outputs.keys()) or ["D", "C", "N"]
         md = build_campaign_markdown(
-            title=st.session_state.get("task_title", "OperAI 任务案卷"),
+            title=st.session_state.get("task_title", "OperAI 运营方案"),
             task_id=dossier.get("task_id", st.session_state["task_id"]),
             run_id=rid,
             pack_id=dossier.get("pack_id", ARCHIVE_FLOW_ID),
             dag=dag,
             agent_outputs=agent_outputs,
         )
-        st.download_button("下载 Markdown 档案", md.encode("utf-8"), file_name=f"operai-dossier-{rid[:8]}.md", mime="text/markdown", use_container_width=True)
+        st.download_button("下载 Markdown 方案", md.encode("utf-8"), file_name=f"operai-plan-{rid[:8]}.md", mime="text/markdown", use_container_width=True)
         try:
             docx_bytes = build_campaign_docx_bytes(
-                title=st.session_state.get("task_title", "OperAI 任务案卷"),
+                title=st.session_state.get("task_title", "OperAI 运营方案"),
                 task_id=dossier.get("task_id", st.session_state["task_id"]),
                 run_id=rid,
                 pack_id=dossier.get("pack_id", ARCHIVE_FLOW_ID),
@@ -300,9 +356,9 @@ with export_tab:
                 agent_outputs=agent_outputs,
             )
             st.download_button(
-                "下载 Word 档案",
+                "下载 Word 方案",
                 docx_bytes,
-                file_name=f"operai-dossier-{rid[:8]}.docx",
+                file_name=f"operai-plan-{rid[:8]}.docx",
                 mime="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 use_container_width=True,
             )
@@ -312,7 +368,7 @@ with export_tab:
             st.code(md, language="markdown")
 
 with settings_tab:
-    st.markdown("### 设置")
+    st.markdown("### 运行设置")
     left, right = st.columns(2, gap="large")
     with left:
         st.checkbox("强制 Mock 模式", key="operai_force_mock")
