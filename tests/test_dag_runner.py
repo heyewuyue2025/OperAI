@@ -47,7 +47,7 @@ def test_run_dag_mock_dcn() -> None:
         pack_id="archive",
         brand_voice="克制",
         platforms=["weibo", "xhs"],
-        raw_input="DAG 单测素材，校园音乐节。",
+        raw_input="DAG 单测素材，新品冷萃杯上市。",
         structured_metrics=None,
         use_llm=False,
         root=ROOT,

@@ -4,7 +4,7 @@ from __future__ import annotations
 import difflib
 from typing import Any
 
-PLATFORM_LABELS = {"weibo": "微博", "wechat": "公众号", "xhs": "小红书"}
+PLATFORM_LABELS = {"weibo": "微博", "wechat": "微信公众号", "xhs": "小红书", "bilibili": "哔哩哔哩", "douyin": "抖音", "kuaishou": "快手"}
 
 
 def extract_drafts(bundle: dict[str, Any] | None) -> dict[str, str]:

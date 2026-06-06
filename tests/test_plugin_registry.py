@@ -22,7 +22,7 @@ def _minimal_context(*, agent_id: str = "D", upstream: dict | None = None) -> di
         "agent_id": agent_id,
         "brand_voice": "克制",
         "platforms": ["weibo", "xhs"],
-        "raw_input": "校园音乐节预热，强调安全与包容。",
+        "raw_input": "新品冷萃杯上市，强调便携、防漏和日常办公场景。",
         "upstream": upstream or {},
     }
 

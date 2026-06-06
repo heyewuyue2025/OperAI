@@ -126,7 +126,7 @@ def _render_c(payload: dict[str, Any], *, draft_overrides: dict[str, str] | None
     script = (payload.get("short_video_script") or "").strip()
     compliance = payload.get("compliance_notes") or []
 
-    labels = {"weibo": "微博", "wechat": "公众号", "xhs": "小红书"}
+    labels = {"weibo": "微博", "wechat": "微信公众号", "xhs": "小红书", "bilibili": "哔哩哔哩", "douyin": "抖音", "kuaishou": "快手"}
 
     draft_md = ""
     for plat, text in drafts.items():

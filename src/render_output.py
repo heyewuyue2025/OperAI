@@ -1,125 +1,176 @@
 """Agent 输出渲染器 — 每种 Agent 输出按各自岗位的需求格式化展示。"""
 from __future__ import annotations
 
+from html import escape
 from typing import Any
 
 import streamlit as st
 
+from src.display_labels import PLATFORM_LABELS, label_key, label_value
 
-def render(agent_id: str, output: dict[str, Any]) -> None:
+
+def _e(value: Any) -> str:
+    return escape(str(value))
+
+
+def _label_key(key: Any) -> str:
+    return label_key(key)
+
+
+def _label_value(value: Any) -> str:
+    return label_value(value)
+
+
+def _compact_text(value: Any, limit: int = 420) -> str:
+    text = " ".join(_label_value(value).strip().split())
+    if len(text) <= limit:
+        return text
+    return text[: limit - 1] + "…"
+
+
+def _section_title(title: str, meta: str = "") -> None:
+    meta_html = f"<span>{_e(meta)}</span>" if meta else ""
+    st.markdown(
+        f"<div class='oa-output-title'><strong>{_e(title)}</strong>{meta_html}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _text_card(text: Any, *, index: int | None = None, meta: str = "", kind: str = "plain", limit: int = 520) -> None:
+    idx = f"<i>{index:02d}</i>" if index is not None else "<i>--</i>"
+    meta_html = f"<em>{_e(meta)}</em>" if meta else ""
+    st.markdown(
+        f"<div class='oa-output-card oa-output-card--{kind}'>{idx}<span>{meta_html}{_e(_compact_text(text, limit))}</span></div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _dict_card(item: dict[str, Any], *, index: int | None = None, kind: str = "plain") -> None:
+    idx = f"<i>{index:02d}</i>" if index is not None else "<i>--</i>"
+    parts = "".join(
+        f"<span><b>{_e(_label_key(k))}</b>{_e(_compact_text(v, 180))}</span>"
+        for k, v in item.items()
+        if not str(k).startswith("_")
+    )
+    st.markdown(
+        f"<div class='oa-output-card oa-output-card--{kind}'>{idx}<div>{parts}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _chips(items: list[Any], *, prefix: str = "") -> None:
+    html = "".join(f"<span>{_e(prefix)}{_e(item)}</span>" for item in items)
+    st.markdown(f"<div class='oa-output-chips'>{html}</div>", unsafe_allow_html=True)
+
+
+def render(agent_id: str, output: dict[str, Any], *, key_prefix: str = "") -> None:
     """根据 Agent 类型分发到对应的渲染器。"""
     renderer = _RENDERERS.get(agent_id.upper())
     if renderer:
-        renderer(output)
+        renderer(output, key_prefix=key_prefix or agent_id.upper())
     else:
         st.json(output)
 
 
 # ── D-Agent: 数据运营 ──
 
-def _render_d(output: dict[str, Any]) -> None:
+def _render_d(output: dict[str, Any], *, key_prefix: str = "") -> None:
     # 洞察卡片
     insights = output.get("insights") or []
     if insights:
-        st.markdown("**关键洞察**")
+        _section_title("关键洞察")
         for i, ins in enumerate(insights, 1):
             st.markdown(
-                f"<div style='padding:10px 14px;margin:6px 0;border-radius:8px;"
-                f"background:rgba(0,200,184,0.06);border:1px solid rgba(0,200,184,0.15);"
-                f"font-size:0.92rem;line-height:1.5;'>{i}. {ins}</div>",
+                f"<div class='oa-insight-card'><b>{i:02d}</b><span>{_e(ins)}</span></div>",
                 unsafe_allow_html=True,
             )
 
     # 传播角度
     angles = output.get("angles") or []
     if angles:
-        st.markdown("**传播角度**")
-        cols = st.columns(min(len(angles), 3))
-        for idx, a in enumerate(angles):
-            with cols[idx % 3]:
-                st.info(a)
+        _section_title("传播角度")
+        st.markdown("<div class='oa-output-grid'>", unsafe_allow_html=True)
+        for idx, a in enumerate(angles, 1):
+            _text_card(a, index=idx, kind="angle")
+        st.markdown("</div>", unsafe_allow_html=True)
 
     # 风险标记
     risks = output.get("risk_flags") or []
     rule_risks = output.get("_rule_risks") or []
     all_risks = list(risks) + [r.get("description", str(r)) for r in rule_risks if isinstance(r, dict)]
     if all_risks:
-        st.markdown("**风险标记**")
-        for r in all_risks:
-            st.warning(str(r)[:200])
+        _section_title("风险标记")
+        for idx, r in enumerate(all_risks, 1):
+            _text_card(r, index=idx, kind="risk", limit=260)
 
     # 证据摘录
     evidence = output.get("evidence_spans") or []
     if evidence:
-        st.markdown("**证据摘录**")
-        for ev in evidence:
+        _section_title("证据摘录", "从原始任务材料中抽取")
+        for idx, ev in enumerate(evidence, 1):
             if isinstance(ev, dict):
-                st.code(f"[{ev.get('field', '')}] {ev.get('snippet', '')}", language=None)
+                st.markdown(
+                    "<div class='oa-evidence-card'>"
+                    f"<b>{idx:02d}</b>"
+                    f"<span>{_e(ev.get('field', 'raw_input'))}</span>"
+                    f"<p>{_e(_compact_text(ev.get('snippet', ''), 260))}</p>"
+                    "</div>",
+                    unsafe_allow_html=True,
+                )
 
 
 # ── C-Agent: 内容运营 ──
 
-def _render_c(output: dict[str, Any]) -> None:
+def _render_c(output: dict[str, Any], *, key_prefix: str = "") -> None:
     drafts = output.get("drafts") or {}
+    labels = PLATFORM_LABELS
 
     # 平台 Tab 切换
     if drafts:
         platforms = list(drafts.keys())
-        tabs = st.tabs(platforms)
-        labels = {"weibo": "微博", "wechat": "公众号", "xhs": "小红书"}
+        tabs = st.tabs([labels.get(plat, plat) for plat in platforms])
         for idx, plat in enumerate(platforms):
             with tabs[idx]:
-                st.caption(f"**{labels.get(plat, plat)}** · {len(drafts[plat])} 字")
+                _section_title(labels.get(plat, plat), f"{len(drafts[plat])} 字")
                 st.text_area(
                     f"{plat}_draft",
                     value=drafts[plat],
                     height=200,
-                    key=f"draft_{plat}",
+                    key=f"{key_prefix}_draft_{plat}",
                     label_visibility="collapsed",
                 )
-                st.caption("可直接复制使用，建议人工终审后发布")
+                _text_card("可直接复制使用，建议人工终审后发布。", kind="note", limit=80)
 
     # 标题变体
     titles = output.get("title_variants") or []
     if titles:
-        st.markdown("**备选标题**")
-        for t in titles:
-            st.markdown(f"- {t}")
+        _section_title("备选标题")
+        for idx, t in enumerate(titles, 1):
+            _text_card(t, index=idx, kind="title", limit=120)
 
     # 口播稿
     script = output.get("short_video_script") or ""
     if script.strip():
-        st.markdown("**口播稿**")
-        st.info(script)
+        _section_title("口播稿")
+        _text_card(script, kind="script", limit=800)
 
     # 合规说明
     compliance = output.get("compliance_notes") or []
     if compliance:
-        for c in compliance:
-            st.caption(f"✓ {c}")
+        _section_title("合规说明")
+        for idx, c in enumerate(compliance, 1):
+            _text_card(c, index=idx, kind="note", limit=240)
 
 
 # ── U-Agent: 用户运营 ──
 
-def _render_u(output: dict[str, Any]) -> None:
+def _render_u(output: dict[str, Any], *, key_prefix: str = "") -> None:
     segments = output.get("segments") or []
     if segments:
-        st.markdown("**用户分群**")
-        cols = st.columns(min(len(segments), 3))
-        for idx, seg in enumerate(segments):
+        _section_title("用户分群")
+        for idx, seg in enumerate(segments, 1):
             if isinstance(seg, dict):
-                prio = seg.get("priority", "")
-                color = {"high": "#f06565", "medium": "#e2a654", "low": "#8892a8"}.get(prio, "#8892a8")
-                with cols[idx % 3]:
-                    st.markdown(
-                        f"<div style='padding:12px;border-radius:8px;background:rgba(255,255,255,0.02);"
-                        f"border:1px solid {color};border-left:3px solid {color};'>"
-                        f"<strong>{seg.get('name','')}</strong><br/>"
-                        f"<small style='color:#8892a8;'>{seg.get('description','')}</small><br/>"
-                        f"<span style='color:{color};font-size:0.72rem;font-weight:600;'>{prio.upper()}</span>"
-                        f"</div>",
-                        unsafe_allow_html=True,
-                    )
+                _dict_card(seg, index=idx, kind="segment")
 
     # 生命周期
     lc = output.get("lifecycle_stage", "")
@@ -127,188 +178,173 @@ def _render_u(output: dict[str, Any]) -> None:
         stages = ["acquisition", "activation", "retention", "revenue", "referral"]
         labels = ["获取", "激活", "留存", "变现", "推荐"]
         idx = stages.index(lc) if lc in stages else 2
-        st.markdown("**生命周期阶段**")
-        cols = st.columns(5)
-        for i, (s, l) in enumerate(zip(stages, labels)):
-            with cols[i]:
-                if i == idx:
-                    st.markdown(f"**{l}** ←")
-                else:
-                    st.caption(l)
+        stage_notes = {
+            "获取": "关注新用户来源、首触达信息和进入路径，先让目标用户知道为什么要看。",
+            "激活": "关注用户第一次完成关键动作，降低理解成本，并给出明确下一步。",
+            "留存": "关注持续使用、复访和复购前的触达节奏，避免一次性热度流失。",
+            "变现": "关注付费、转化、权益和价格表达，检查承诺边界与转化摩擦。",
+            "推荐": "关注分享、口碑、社群扩散和老用户带新用户的动作设计。",
+        }
+        _section_title("生命周期阶段")
+        selected_label = st.radio(
+            "生命周期阶段",
+            labels,
+            index=idx,
+            horizontal=True,
+            key=f"{key_prefix}_lifecycle_stage_view",
+            label_visibility="collapsed",
+        )
+        _dict_card(
+            {
+                "当前查看": selected_label,
+                "Agent 判断": labels[idx],
+                "运营含义": stage_notes.get(selected_label, ""),
+            },
+            kind="stage",
+        )
 
     # 留存动作
     actions = output.get("retention_actions") or []
     if actions:
-        st.markdown("**触达策略**")
-        for a in actions:
+        _section_title("触达策略")
+        for idx, a in enumerate(actions, 1):
             if isinstance(a, dict):
-                st.markdown(
-                    f"- **{a.get('segment','')}** → {a.get('action','')} "
-                    f"（{a.get('channel','')}）"
-                )
+                _dict_card(a, index=idx, kind="action")
 
     # 流失风险
     churn = output.get("churn_risks") or []
     if churn:
-        for c in churn:
-            st.warning(str(c)[:200])
+        _section_title("流失风险")
+        for idx, c in enumerate(churn, 1):
+            _text_card(c, index=idx, kind="risk", limit=220)
 
 
 # ── A-Agent: 活动运营 ──
 
-def _render_a(output: dict[str, Any]) -> None:
+def _render_a(output: dict[str, Any], *, key_prefix: str = "") -> None:
     plan = output.get("campaign_plan") or []
     if plan:
-        st.markdown("**战役计划**")
-        for phase in plan:
+        _section_title("战役计划")
+        for idx, phase in enumerate(plan, 1):
             if isinstance(phase, dict):
-                phase_name = phase.get("phase", "")
-                obj = phase.get("objective", "")
-                tasks = phase.get("tasks") or []
-                with st.expander(f"{phase_name} · {obj}"):
-                    for t in tasks:
-                        st.markdown(f"- {t}")
+                _dict_card(phase, index=idx, kind="plan")
 
     # ROI
     roi = output.get("roi_estimate") or {}
     if isinstance(roi, dict) and roi.get("summary"):
-        st.markdown("**ROI 预估**")
-        st.info(roi.get("summary", ""))
+        _section_title("ROI 预估")
+        _text_card(roi.get("summary", ""), kind="metric", limit=360)
         conf = roi.get("confidence", "")
         if conf:
-            color = {"high": "green", "medium": "orange", "low": "red"}.get(conf, "grey")
-            st.caption(f"置信度：:{color}[{conf}]")
+            _text_card(conf, meta="置信度", kind="note", limit=80)
 
 
 # ── F-Agent: 流量运营 ──
 
-def _render_f(output: dict[str, Any]) -> None:
+def _render_f(output: dict[str, Any], *, key_prefix: str = "") -> None:
     scores = output.get("channel_scores") or []
     if scores:
-        st.markdown("**渠道评分**")
-        for s in scores:
+        _section_title("渠道评分")
+        for idx, s in enumerate(scores, 1):
             if isinstance(s, dict):
-                sc = s.get("score", 0)
-                color = "#3ecf8e" if sc >= 80 else ("#00c8b8" if sc >= 60 else ("#e2a654" if sc >= 40 else "#f06565"))
-                st.markdown(
-                    f"**{s.get('channel','')}** "
-                    f"<span style='color:{color};font-weight:700;'>{sc}</span> · "
-                    f"<small>{s.get('rationale','')}</small>",
-                    unsafe_allow_html=True,
-                )
+                _dict_card(s, index=idx, kind="score")
 
     # 预算
     budget = output.get("budget_allocation") or []
     if budget:
-        st.markdown("**预算分配**")
-        for b in budget:
+        _section_title("预算分配")
+        for idx, b in enumerate(budget, 1):
             if isinstance(b, dict):
-                pct = b.get("percent", 0)
+                pct = max(0, min(100, int(float(b.get("percent", 0) or 0))))
                 st.markdown(
-                    f"<div style='display:flex;align-items:center;gap:12px;padding:4px 0;'>"
-                    f"<span style='width:80px;font-size:0.82rem;'>{b.get('channel','')}</span>"
-                    f"<div style='flex:1;height:8px;border-radius:4px;background:rgba(255,255,255,0.06);'>"
-                    f"<div style='width:{pct}%;height:100%;border-radius:4px;background:#00c8b8;'></div></div>"
-                    f"<span style='font-family:monospace;font-size:0.82rem;width:40px;text-align:right;'>{pct}%</span>"
-                    f"</div>",
+                    "<div class='oa-budget-row'>"
+                    f"<i>{idx:02d}</i><span>{_e(_label_value(b.get('channel','')))}</span>"
+                    f"<div><b style='width:{pct}%'></b></div><strong>{pct}%</strong>"
+                    f"<small>{_e(_compact_text(b.get('rationale', ''), 120))}</small>"
+                    "</div>",
                     unsafe_allow_html=True,
                 )
 
     # 转化提示
     hints = output.get("conversion_hints") or []
     if hints:
-        st.markdown("**转化优化**")
-        for h in hints:
-            st.markdown(f"- {h}")
+        _section_title("转化优化")
+        for idx, h in enumerate(hints, 1):
+            _text_card(h, index=idx, kind="action", limit=240)
 
 
 # ── N-Agent: 渠道运营 ──
 
-def _render_n(output: dict[str, Any]) -> None:
+def _render_n(output: dict[str, Any], *, key_prefix: str = "") -> None:
     sched = output.get("schedule_suggestions") or []
     if sched:
-        st.markdown("**排期建议**")
-        rows = []
-        for s in sched:
+        _section_title("排期建议")
+        for idx, s in enumerate(sched, 1):
             if isinstance(s, dict):
-                rows.append({
-                    "平台": s.get("platform", ""),
+                _dict_card({
+                    "平台": PLATFORM_LABELS.get(str(s.get("platform", "")), str(s.get("platform", ""))),
                     "时间窗": s.get("window", ""),
                     "理由": s.get("reason", ""),
-                })
-        if rows:
-            st.dataframe(rows, use_container_width=True, hide_index=True)
+                }, index=idx, kind="schedule")
 
     tags = output.get("hashtags") or []
     if tags:
-        st.markdown("**推荐标签**")
-        tag_html = " ".join(
-            f"<span style='display:inline-block;padding:4px 10px;margin:2px;border-radius:12px;"
-            f"background:rgba(0,200,184,0.12);color:#00c8b8;font-size:0.78rem;font-family:monospace;'>#{t}</span>"
-            for t in tags
-        )
-        st.markdown(tag_html, unsafe_allow_html=True)
+        _section_title("推荐标签")
+        _chips(tags, prefix="#")
 
 
 # ── E-Agent: 交易运营 ──
 
-def _render_e(output: dict[str, Any]) -> None:
+def _render_e(output: dict[str, Any], *, key_prefix: str = "") -> None:
     funnel = output.get("funnel_steps") or []
     if funnel:
-        st.markdown("**转化漏斗**")
-        for idx, f in enumerate(funnel):
+        _section_title("转化漏斗")
+        for idx, f in enumerate(funnel, 1):
             if isinstance(f, dict):
-                ratio = 1.0 - idx * 0.22
-                st.markdown(
-                    f"<div style='display:flex;align-items:center;gap:12px;padding:6px 0;'>"
-                    f"<span style='width:50px;font-size:0.78rem;font-weight:600;'>{f.get('step','')}</span>"
-                    f"<div style='flex:1;height:22px;border-radius:4px;background:rgba(0,200,184,{ratio:.2f});display:flex;align-items:center;padding-left:10px;'>"
-                    f"<span style='font-size:0.72rem;'>{f.get('description','')}</span></div>"
-                    f"</div>",
-                    unsafe_allow_html=True,
-                )
+                _dict_card(f, index=idx, kind="funnel")
 
     promos = output.get("promo_suggestions") or []
     if promos:
-        st.markdown("**促销方案**")
-        for p in promos:
+        _section_title("促销方案")
+        for idx, p in enumerate(promos, 1):
             if isinstance(p, dict):
-                st.markdown(
-                    f"<div style='padding:8px 12px;margin:4px 0;border-radius:8px;"
-                    f"background:rgba(0,200,184,0.06);border:1px solid rgba(0,200,184,0.15);'>"
-                    f"<strong>{p.get('offer','')}</strong><br/>"
-                    f"<small style='color:#8892a8;'>约束：{p.get('constraint','')}</small>"
-                    f"</div>",
-                    unsafe_allow_html=True,
-                )
+                _dict_card(p, index=idx, kind="action")
 
     ctas = output.get("cta_variants") or []
     if ctas:
-        st.markdown("**CTA 变体**")
-        for c in ctas:
-            st.markdown(f"- `{c}`")
+        _section_title("CTA 变体")
+        for idx, c in enumerate(ctas, 1):
+            _text_card(c, index=idx, kind="title", limit=140)
 
 
 # ── M/P/S: 策略建议型 ──
 
-def _render_generic_cards(output: dict[str, Any]) -> None:
+def _render_generic_cards(output: dict[str, Any], *, key_prefix: str = "") -> None:
     """通用渲染：按 key 展示为结构化卡片。"""
     for key, val in output.items():
         if key.startswith("_"):
             continue
-        st.markdown(f"**{key}**")
+        _section_title(_label_key(key))
         if isinstance(val, list):
-            for item in val:
+            for idx, item in enumerate(val, 1):
                 if isinstance(item, dict):
-                    parts = [f"**{k}**: {v}" for k, v in item.items()]
-                    st.markdown(" · ".join(parts))
+                    _dict_card(item, index=idx)
                 else:
-                    st.markdown(f"- {item}")
+                    st.markdown(
+                        f"<div class='oa-output-card'><i>{idx:02d}</i><span>{_e(_compact_text(item))}</span></div>",
+                        unsafe_allow_html=True,
+                    )
         elif isinstance(val, dict):
-            for k, v in val.items():
-                st.caption(f"{k}: {v}")
+            for idx, (k, v) in enumerate(val.items(), 1):
+                st.markdown(
+                    f"<div class='oa-output-card'><i>{idx:02d}</i><span><b>{_e(_label_key(k))}</b>{_e(_compact_text(v))}</span></div>",
+                    unsafe_allow_html=True,
+                )
         else:
-            st.caption(str(val)[:300])
+            st.markdown(
+                f"<div class='oa-output-card'><i>--</i><span>{_e(_compact_text(val))}</span></div>",
+                unsafe_allow_html=True,
+            )
 
 
 # ── 渲染器注册表 ──

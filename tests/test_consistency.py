@@ -4,7 +4,7 @@ from src.consistency import check_draft_consistency
 
 
 def test_consistency_number_mismatch() -> None:
-    d_out = {"risk_flags": [], "evidence_spans": [{"field": "raw_input", "snippet": "音乐节"}]}
+    d_out = {"risk_flags": [], "evidence_spans": [{"field": "raw_input", "snippet": "新品上市"}]}
     drafts = {
         "weibo": "下月12日活动",
         "wechat": "欢迎参加",

@@ -51,7 +51,7 @@ def _context_for(agent_id: str) -> dict:
         "agent_id": agent_id,
         "brand_voice": "克制",
         "platforms": ["weibo", "xhs"],
-        "raw_input": "校园音乐节契约测试素材。",
+        "raw_input": "新品冷萃杯上市契约测试素材。",
         "upstream": upstream,
     }
 

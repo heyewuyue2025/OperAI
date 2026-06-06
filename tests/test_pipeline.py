@@ -29,7 +29,7 @@ def test_execute_pipeline_mock_ok() -> None:
         title="pytest",
         brand_voice="克制",
         platforms=["weibo", "xhs"],
-        raw_input="校园音乐节预热，强调安全与包容。",
+        raw_input="新品冷萃杯上市，强调便携、防漏和日常办公场景。",
     )
     assert res["ok"] is True
     assert res["status"] in ("need_review", "success")

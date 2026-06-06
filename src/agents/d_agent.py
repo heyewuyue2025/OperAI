@@ -9,28 +9,12 @@ from __future__ import annotations
 
 import json
 import re
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "insights": [
-        "活动具备「学生主办 + 本地乐队」双叙事，易形成参与感与地缘认同。",
-        "安全与包容为校园场景硬约束，内容需显性提及而非口号化。",
-    ],
-    "angles": [
-        "以「第一次户外彩排花絮」制造真实感与倒计时。",
-        "以「志愿者/工作组」幕后视角强化可信与秩序。",
-        "以「无酒精友好现场」回应校园活动常见舆情点。",
-    ],
-    "risk_flags": ["避免饮酒与过度营销承诺", "乐队版权与肖像需线下确认"],
-    "evidence_spans": [
-        {"field": "raw_input", "snippet": "户外音乐节"},
-        {"field": "raw_input", "snippet": "安全、包容、学生主办"},
-    ],
-}
+MOCK: dict[str, Any] = {}
 
 
 def validate(payload: dict[str, Any], *, raw_input: str = "") -> list[str]:
@@ -86,8 +70,8 @@ def scan_risks(text: str) -> list[dict[str, str]]:
 def _d_fallback(raw_input: str) -> dict[str, Any]:
     snippet = raw_input.strip().replace("\n", " ")[:160]
     return {
-        "insights": ["（模型降级）以下为基于素材的应急要点，请人工复核。"],
-        "angles": ["用可验证细节建立信任", "用「幕后/筹备」视角降低宣传感"],
+        "insights": [f"基于当前素材的应急摘要：{snippet or '暂无素材'}"],
+        "angles": ["提炼可验证事实", "明确目标用户与行动路径", "标记需要人工确认的约束"],
         "risk_flags": ["请人工核对事实、合规与敏感表述"],
         "evidence_spans": [{"field": "raw_input", "snippet": snippet[:80]}],
         "_operai_fallback": "LLM 不可用，已降级",
@@ -99,7 +83,7 @@ def run_d(*, use_llm: bool, raw_input: str, brand_voice: str, llm_cfg: dict[str,
     rule_risks = scan_risks(raw_input)
 
     if not use_llm:
-        out = deepcopy(MOCK)
+        out = _d_fallback(raw_input)
         out["_metrics"] = metrics
         out["_rule_risks"] = rule_risks
         return out

@@ -2,44 +2,12 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "campaign_plan": [
-        {
-            "phase": "预热",
-            "objective": "建立可信叙事与期待",
-            "tasks": ["发布彩排花絮", "开放志愿者报名 FAQ"],
-            "owner_agent": "C",
-        },
-        {
-            "phase": "爆发",
-            "objective": "集中互动与到场转化",
-            "tasks": ["三平台同步首发", "首评置顶引导"],
-            "owner_agent": "N",
-        },
-        {
-            "phase": "收尾",
-            "objective": "口碑沉淀与二次传播",
-            "tasks": ["UGC 征集活动", "战报图文发布", "下次活动预告"],
-            "owner_agent": "S",
-        },
-    ],
-    "budget_hints": [
-        {"channel": "weibo", "suggestion": "短文案 + 话题扩散", "percent_range": "25%-35%"},
-        {"channel": "xhs", "suggestion": "图文种草 + 蹲后续", "percent_range": "30%-40%"},
-        {"channel": "wechat", "suggestion": "深度内容 + 志愿招募", "percent_range": "20%-30%"},
-    ],
-    "roi_estimate": {
-        "summary": "以学生参与与口碑传播为主，不以销售 ROI 衡量",
-        "assumptions": ["无付费投放承诺", "线下到场率为核心观察指标"],
-        "confidence": "medium",
-    },
-}
+MOCK: dict[str, Any] = {}
 
 
 def validate(payload: dict[str, Any]) -> list[str]:
@@ -78,19 +46,19 @@ def build_campaign_template() -> list[dict[str, Any]]:
         {
             "phase": "预热期",
             "objective": "建立认知与期待",
-            "tasks": ["KOL/内容造势", "预约/收藏引导", "话题预埋"],
+            "tasks": ["核心信息梳理", "目标人群触达", "渠道预告"],
             "budget_ratio": "20%-30%",
         },
         {
             "phase": "爆发期",
             "objective": "集中转化",
-            "tasks": ["全平台同步发布", "实时数据监控", "动态调价/补量"],
+            "tasks": ["多平台发布", "实时数据监控", "关键问题响应"],
             "budget_ratio": "50%-60%",
         },
         {
             "phase": "收尾期",
             "objective": "长尾收割 + 口碑沉淀",
-            "tasks": ["限时返场", "UGC 征集", "战报发布"],
+            "tasks": ["结果复盘", "用户反馈回收", "后续动作建议"],
             "budget_ratio": "10%-20%",
         },
     ]
@@ -143,10 +111,11 @@ def _a_fallback(raw_input: str) -> dict[str, Any]:
     snippet = raw_input.strip().replace("\n", " ")[:160]
     return {
         "campaign_plan": [
-            {"phase": "预热", "objective": "建立认知", "tasks": ["内容造势", "渠道预告"], "owner_agent": "C"},
-            {"phase": "爆发", "objective": "集中转化", "tasks": ["多平台同步", "互动引导"], "owner_agent": "N"},
+            {"phase": "准备", "objective": "澄清目标、受众、资源和约束", "tasks": ["整理任务材料", "确认目标平台", "定义成功指标"], "owner_agent": "D"},
+            {"phase": "执行", "objective": "把方案发布到合适渠道并监控反馈", "tasks": ["生成核心内容", "安排发布节奏", "跟踪关键反馈"], "owner_agent": "C"},
+            {"phase": "复盘", "objective": "沉淀结果、风险和下一步动作", "tasks": ["汇总数据表现", "标记风险与问题", "形成复盘建议"], "owner_agent": "N"},
         ],
-        "budget_hints": [{"channel": "综合", "suggestion": "请人工评估", "percent_range": "待定"}],
+        "budget_hints": [{"channel": "综合渠道", "suggestion": "根据本次任务目标和历史表现人工确认预算", "percent_range": "待定"}],
         "roi_estimate": {
             "summary": f"模型降级，基于素材摘要：{snippet}",
             "assumptions": ["请人工设定评估指标"],
@@ -165,7 +134,7 @@ def run_a(
 ) -> dict[str, Any]:
     _ = root
     if not use_llm:
-        return deepcopy(MOCK)
+        return _a_fallback(str(context.get("raw_input", "")))
 
     raw_input = str(context.get("raw_input", ""))
     upstream = context.get("upstream") or {}

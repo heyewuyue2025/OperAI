@@ -2,24 +2,12 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "segments": [
-        {"name": "高活跃在校生", "description": "近 7 天有互动或报名意向", "priority": "high"},
-        {"name": "沉默围观", "description": "关注但未互动超过 14 天", "priority": "medium"},
-    ],
-    "lifecycle_stage": "activation",
-    "retention_actions": [
-        {"segment": "高活跃在校生", "action": "推送彩排花絮与志愿者入口", "channel": "wechat"},
-        {"segment": "沉默围观", "action": "轻量话题互动 + 蹲后续提醒", "channel": "xhs"},
-    ],
-    "churn_risks": ["活动信息过载导致取关", "未回应评论引发负面体验"],
-}
+MOCK: dict[str, Any] = {}
 
 LIFECYCLE_STAGES = {"acquisition", "activation", "retention", "revenue", "referral"}
 
@@ -116,7 +104,7 @@ def run_u(
 ) -> dict[str, Any]:
     _ = root
     if not use_llm:
-        return deepcopy(MOCK)
+        return _u_fallback(str(context.get("raw_input", "")))
 
     raw_input = str(context.get("raw_input", ""))
     brand_voice = str(context.get("brand_voice", ""))

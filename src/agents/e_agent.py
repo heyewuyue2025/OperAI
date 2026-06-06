@@ -2,32 +2,12 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "funnel_steps": [
-        {"step": "曝光", "description": "三平台内容触达在校用户与校友圈", "dropoff_risk": "信息流噪音，首屏吸引力不足"},
-        {"step": "兴趣", "description": "点击/收藏/蹲后续，进入意向池", "dropoff_risk": "CTA 不明确导致流失"},
-        {"step": "互动", "description": "评论/转发/填写预报名表单", "dropoff_risk": "表单过长或权限申请劝退"},
-        {"step": "到场", "description": "线下参与或志愿者到场签到", "dropoff_risk": "交通指引不清、天气不确定"},
-        {"step": "复购/传播", "description": "活动后 UGC 分享与下次活动预约", "dropoff_risk": "缺乏持续触达机制"},
-    ],
-    "promo_suggestions": [
-        {"offer": "志愿者专属纪念周边", "constraint": "不承诺稀缺或升值，限定现场领取"},
-        {"offer": "早鸟关注礼包（电子纪念票根 + 节目单预览）", "constraint": "明确领取截止时间，避免催促感"},
-        {"offer": "三人同行预约通道", "constraint": "不强制分享朋友圈，尊重用户隐私选择"},
-    ],
-    "cta_variants": [
-        "关注官方账号获取场次通知与彩排花絮",
-        "评论区置顶查看 FAQ，报名入口见公众号菜单",
-        "转发给想一起去的朋友，蹲后续场次更新",
-        "志愿者报名通道已开启，不限年级与专业",
-    ],
-}
+MOCK: dict[str, Any] = {}
 
 
 def validate(payload: dict[str, Any]) -> list[str]:
@@ -48,11 +28,12 @@ def _e_fallback(raw_input: str) -> dict[str, Any]:
     snippet = raw_input.strip().replace("\n", " ")[:160]
     return {
         "funnel_steps": [
-            {"step": "曝光", "description": "内容触达", "dropoff_risk": "模型降级"},
-            {"step": "转化", "description": "下单/参与", "dropoff_risk": "请人工补充"},
+            {"step": "触达", "description": f"围绕当前任务素材触达目标用户：{snippet}", "dropoff_risk": "目标人群或渠道不清会降低触达效率"},
+            {"step": "理解", "description": "用户需要快速理解价值、行动方式和限制条件", "dropoff_risk": "信息结构不清会造成跳出"},
+            {"step": "行动", "description": "将用户引导到明确的下一步", "dropoff_risk": "CTA 或转化入口不明确会造成流失"},
         ],
-        "promo_suggestions": [{"offer": "请人工设计促销方案", "constraint": f"素材摘要：{snippet}"}],
-        "cta_variants": ["请人工设计 CTA"],
+        "promo_suggestions": [{"offer": "按当前任务目标设计激励或权益", "constraint": f"必须基于真实素材与实际可交付能力：{snippet}"}],
+        "cta_variants": ["查看详情", "了解下一步", "获取完整方案"],
         "_operai_fallback": "E-Agent LLM 不可用，已降级",
     }
 
@@ -63,7 +44,7 @@ def run_e(
 ) -> dict[str, Any]:
     _ = root
     if not use_llm:
-        return deepcopy(MOCK)
+        return _e_fallback(str(context.get("raw_input", "")))
 
     raw_input = str(context.get("raw_input", ""))
     upstream = context.get("upstream") or {}

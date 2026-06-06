@@ -2,26 +2,12 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "channel_scores": [
-        {"channel": "weibo", "score": 78, "rationale": "短内容扩散效率高，适合预热话题"},
-        {"channel": "xhs", "score": 82, "rationale": "图文叙事与社区活跃匹配校园活动"},
-        {"channel": "wechat", "score": 70, "rationale": "适合深度说明，爆发期需配合推送"},
-    ],
-    "budget_allocation": [
-        {"channel": "weibo", "percent": 25},
-        {"channel": "xhs", "percent": 35},
-        {"channel": "wechat", "percent": 25},
-        {"channel": "实验/新渠道", "percent": 15},
-    ],
-    "conversion_hints": ["用可验证细节建立信任", "首评置顶 FAQ 降低咨询成本"],
-}
+MOCK: dict[str, Any] = {}
 
 
 def validate(payload: dict[str, Any]) -> list[str]:
@@ -91,11 +77,12 @@ def _f_fallback(raw_input: str) -> dict[str, Any]:
     snippet = raw_input.strip().replace("\n", " ")[:160]
     return {
         "channel_scores": [
-            {"channel": "weibo", "score": 70, "rationale": "模型降级，建议人工评估"},
-            {"channel": "wechat", "score": 70, "rationale": "模型降级，建议人工评估"},
+            {"channel": "weibo", "score": 65, "rationale": "模型降级，需结合目标用户和内容形态人工评估"},
+            {"channel": "wechat", "score": 65, "rationale": "模型降级，适合承载完整说明但需人工确认"},
+            {"channel": "xhs", "score": 65, "rationale": "模型降级，需确认是否适合本次任务的场景化表达"},
         ],
-        "budget_allocation": [{"channel": "weibo", "percent": 50}, {"channel": "wechat", "percent": 50}],
-        "conversion_hints": [f"模型降级，基于素材摘要：{snippet}"],
+        "budget_allocation": [{"channel": "weibo", "percent": 30}, {"channel": "wechat", "percent": 30}, {"channel": "xhs", "percent": 30}, {"channel": "实验/新渠道", "percent": 10}],
+        "conversion_hints": [f"基于素材摘要先人工确认核心转化目标：{snippet}"],
         "_operai_fallback": "F-Agent LLM 不可用，已降级为应急流量分配草稿，请人工复核后使用",
     }
 
@@ -109,7 +96,7 @@ def run_f(
 ) -> dict[str, Any]:
     _ = root
     if not use_llm:
-        return deepcopy(MOCK)
+        return _f_fallback(str(context.get("raw_input", "")))
 
     raw_input = str(context.get("raw_input", ""))
     platforms = context.get("platforms") or ["weibo", "wechat", "xhs"]

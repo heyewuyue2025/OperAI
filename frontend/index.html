@@ -3,47 +3,49 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>OperAI Archive OS · 运营任务控制台</title>
+<title>OperAI × Harness · 运营 Skill 工作系统</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
 <header class="nav">
-  <a class="nav-brand" href="index.html">OperAI 工作台</a>
-  <nav class="nav-links" aria-label="工作台导航">
-    <a href="#system">系统</a>
-    <a href="#agents">智能体索引</a>
-    <a href="#evidence">证据链</a>
-    <a href="#deployment">部署</a>
+  <a class="nav-brand" href="index.html">OperAI</a>
+  <nav class="nav-links nav-directory" aria-label="工作台导航">
+    <a href="#system">职能入口</a>
+    <a href="#agents">Skill 能力</a>
+    <a href="#evidence">质量复核</a>
+    <a href="#deployment">团队方法库</a>
   </nav>
-  <a class="btn btn-primary btn-sm" href="http://127.0.0.1:8501" data-workbench>打开工作台</a>
 </header>
 
 <main>
   <section class="hero">
     <div class="reveal visible">
-      <p class="eyebrow">OPA-2026 / 运营任务控制台</p>
-      <h1 class="hero-title">OperAI<br>Archive OS</h1>
-      <p class="hero-desc">把活动说明、产品卖点、用户反馈和平台数据转成可复核的内容方案、发布排期与交付文档。十个 Agent 不是聊天窗口，而是一套能分工、生成、校验和交付的运营工作流。</p>
+      <h1 class="hero-title hero-lockup" aria-label="OperAI X Harness">
+        <span class="brand-word">OperAI</span>
+        <span class="brand-joint">X</span>
+        <span class="engine-word">Harness</span>
+      </h1>
+      <p class="hero-desc">OperAI 是面向运营团队的 AI 工作平台。内容运营、用户运营、活动运营、渠道运营等职能都能从自己的入口进入；系统在背后用 Harness 编排 Skill，完成理解、生成、复核和交付。</p>
       <div class="hero-actions">
-        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>进入工作台</a>
-        <a class="btn" href="#agents">浏览智能体索引</a>
+        <a class="btn btn-primary" href="http://127.0.0.1:8501" data-workbench>进入运营工作台</a>
+        <a class="btn" href="#system">查看职能入口</a>
       </div>
     </div>
     <aside class="hero-ledger file-card reveal delay-1">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:16px;">
         <div>
-          <p class="file-meta">当前系统状态</p>
-          <h2 style="font-family:var(--font-display);font-size:var(--text-2xl);line-height:1;margin-top:10px;">10 个运营岗位<br>1 条标准生成链路</h2>
+          <p class="file-meta">产品结构</p>
+          <h2 style="font-family:var(--font-display);font-size:var(--text-2xl);line-height:1;margin-top:10px;">8 个职能入口<br>52 个可组合 Skill</h2>
         </div>
-        <span class="stamp">已索引</span>
+        <span class="stamp">可扩展</span>
       </div>
       <table class="ledger-table" style="margin-top:24px;">
-        <tr><th>层级</th><th>记录</th></tr>
-        <tr><td>任务输入</td><td>素材、平台、表达口径</td></tr>
-        <tr><td>结果复盘</td><td>步骤、输出、耗时、降级标记</td></tr>
-        <tr><td>证据核查</td><td>指标、摘录、校验、日志</td></tr>
-        <tr><td>交付导出</td><td>Markdown 与 Word 方案</td></tr>
+        <tr><th>层级</th><th>说明</th></tr>
+        <tr><td>8 个职能入口</td><td>让运营用户先找到自己的工作场景</td></tr>
+        <tr><td>10 个运营智能体</td><td>保留原有智能体集群作为内部执行能力</td></tr>
+        <tr><td>52 个可组合 Skill</td><td>覆盖内容、增长、CRM、投放、活动、公关、数据和客户成功</td></tr>
+        <tr><td>1 套 Harness 引擎</td><td>负责任务理解、编排执行、质量复核和交付</td></tr>
       </table>
     </aside>
   </section>
@@ -51,56 +53,57 @@
   <section class="section" id="system">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">工作流地图</p>
-        <h2 class="section-title">从素材到方案，<br>每一步都有依据。</h2>
+        <p class="section-kicker">职能入口</p>
+        <h2 class="section-title">先找到你的工作，<br>再交给系统编排。</h2>
       </div>
-      <p class="section-note">Archive OS 把运营工作拆成五个清晰动作。它保留 AI 的生成能力，但让结果能复盘、能解释、能交付。</p>
+      <p class="section-note">运营用户看到的是自己熟悉的岗位场景；Harness 负责在背后选择 Skill、传递上下文、记录过程和检查质量。</p>
     </div>
     <div class="archive-map">
-      <article class="map-node reveal"><span>01</span><strong>任务输入</strong><p>录入活动素材、目标平台和表达口径，明确生成边界。</p></article>
-      <article class="map-node reveal delay-1"><span>02</span><strong>智能体编排</strong><p>十个运营 Agent 作为可扩展岗位，默认链路先跑 D/C/N。</p></article>
-      <article class="map-node reveal delay-2"><span>03</span><strong>结果复盘</strong><p>每次执行都记录步骤、状态、耗时、输出和降级标记。</p></article>
-      <article class="map-node reveal delay-3"><span>04</span><strong>证据核查</strong><p>原始素材、指标、洞察、文案、排期与校验串成可追溯链路。</p></article>
-      <article class="map-node reveal delay-3"><span>05</span><strong>交付导出</strong><p>最终 Markdown/Word 是可继续编辑、复核和提交的运营方案。</p></article>
+      <article class="map-node reveal"><span>内容</span><strong>内容运营</strong><p>把素材、卖点和用户语境转成微博、公众号、小红书、抖音内容。</p></article>
+      <article class="map-node reveal delay-1"><span>用户</span><strong>用户运营</strong><p>把反馈、分层和生命周期问题转成触达、召回和留存动作。</p></article>
+      <article class="map-node reveal delay-2"><span>活动</span><strong>活动运营</strong><p>把目标、预算、资源和节奏组织成可执行活动方案。</p></article>
+      <article class="map-node reveal delay-3"><span>渠道</span><strong>渠道运营</strong><p>把内容安排到合适平台、时间窗口、标签和发布节奏。</p></article>
+      <article class="map-node reveal delay-3"><span>增长</span><strong>增长转化</strong><p>围绕流量效率、转化路径、促销和 CTA 给出优化动作。</p></article>
+      <article class="map-node reveal"><span>产品</span><strong>产品运营</strong><p>把功能数据、体验问题和用户反馈转成迭代优先级与运营动作。</p></article>
+      <article class="map-node reveal delay-1"><span>社群</span><strong>社群运营</strong><p>把社群聊天、评论区和 KOL 线索转成互动话术与社群动作。</p></article>
+      <article class="map-node reveal delay-2"><span>市场</span><strong>市场策略</strong><p>把品牌、竞品、趋势和目标客群整理成定位与传播判断。</p></article>
     </div>
   </section>
 
   <section class="section" id="agents">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">智能体索引 / 10 个岗位</p>
-        <h2 class="section-title">十个岗位，<br>十份研究工具档案。</h2>
+        <p class="section-kicker">Skill 能力层</p>
+        <h2 class="section-title">职能入口之下，<br>是可组合的运营能力。</h2>
       </div>
-      <p class="section-note">每个 Agent 有明确输入、输出、校验规则和上下游关系。它们像运营团队里的岗位，而不是一组零散按钮。</p>
+      <p class="section-note">同一个 Skill 可以服务多个职能。比如证据摘录既能给内容运营用，也能给产品运营、市场策略和增长转化用。</p>
     </div>
     <div class="index-grid">
-      <a class="index-row reveal" href="d-agent.html"><span class="index-id">D</span><span><b class="index-title">数据运营</b><br><small class="index-desc">指标提取 · 洞察 · 风险扫描</small></span><span class="index-tag">数据底座</span></a>
-      <a class="index-row reveal" href="u-agent.html"><span class="index-id">U</span><span><b class="index-title">用户运营</b><br><small class="index-desc">分群 · 生命周期 · 流失预警</small></span><span class="index-tag">模型增强</span></a>
-      <a class="index-row reveal" href="c-agent.html"><span class="index-id">C</span><span><b class="index-title">内容运营</b><br><small class="index-desc">多平台文案 · 标题 · 合规</small></span><span class="index-tag">模型增强</span></a>
-      <a class="index-row reveal" href="a-agent.html"><span class="index-id">A</span><span><b class="index-title">活动运营</b><br><small class="index-desc">战役结构 · ROI · 任务拆解</small></span><span class="index-tag">模型增强</span></a>
-      <a class="index-row reveal" href="n-agent.html"><span class="index-id">N</span><span><b class="index-title">渠道运营</b><br><small class="index-desc">排期 · 标签 · 平台适配</small></span><span class="index-tag">规则优先</span></a>
-      <a class="index-row reveal" href="f-agent.html"><span class="index-id">F</span><span><b class="index-title">流量运营</b><br><small class="index-desc">渠道评分 · 预算 · CAC</small></span><span class="index-tag">模型增强</span></a>
-      <a class="index-row reveal" href="m-agent.html"><span class="index-id">M</span><span><b class="index-title">市场运营</b><br><small class="index-desc">定位 · 竞品 · 趋势</small></span><span class="index-tag">策略研判</span></a>
-      <a class="index-row reveal" href="p-agent.html"><span class="index-id">P</span><span><b class="index-title">产品运营</b><br><small class="index-desc">反馈归类 · 迭代优先级</small></span><span class="index-tag">策略研判</span></a>
-      <a class="index-row reveal" href="s-agent.html"><span class="index-id">S</span><span><b class="index-title">社群运营</b><br><small class="index-desc">话术 · KOL · 情绪</small></span><span class="index-tag">策略研判</span></a>
-      <a class="index-row reveal" href="e-agent.html"><span class="index-id">E</span><span><b class="index-title">交易运营</b><br><small class="index-desc">漏斗 · 促销 · CTA</small></span><span class="index-tag">策略研判</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">01</span><span><b class="index-title">任务材料结构化</b><br><small class="index-desc">原始素材 · 业务目标 · 信息缺口</small></span><span class="index-tag">输入</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">02</span><span><b class="index-title">证据摘录</b><br><small class="index-desc">指标 · 用户原话 · 事实片段</small></span><span class="index-tag">证据链</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">03</span><span><b class="index-title">用户反馈归因</b><br><small class="index-desc">评论 · 需求 · 阻力与机会</small></span><span class="index-tag">用户增长</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">04</span><span><b class="index-title">平台内容生成</b><br><small class="index-desc">微博 · 公众号 · 小红书 · 抖音</small></span><span class="index-tag">内容生产</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">05</span><span><b class="index-title">渠道排期</b><br><small class="index-desc">发布时间 · 标签 · 平台注意事项</small></span><span class="index-tag">发布编排</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">06</span><span><b class="index-title">质量与证据复核</b><br><small class="index-desc">事实依据 · 风险 · 可修复建议</small></span><span class="index-tag">评估</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">07</span><span><b class="index-title">转化 CTA 优化</b><br><small class="index-desc">漏斗 · 促销 · 商品页动作</small></span><span class="index-tag">交易转化</span></a>
+      <a class="index-row reveal" href="http://127.0.0.1:8501" data-workbench><span class="index-id">08</span><span><b class="index-title">交付成稿</b><br><small class="index-desc">方案文档 · 摘要 · 待确认事项</small></span><span class="index-tag">导出</span></a>
     </div>
   </section>
 
   <section class="section" id="evidence">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">证据核查</p>
-        <h2 class="section-title">生成不是终点，<br>能解释才有价值。</h2>
+        <p class="section-kicker">质量检验</p>
+        <h2 class="section-title">好答案不是写出来，<br>是被检查出来。</h2>
       </div>
-      <p class="section-note">D/C/N 每一步都写入 SQLite 与 JSONL。工作台会把这些记录呈现为可审阅的运行结果。</p>
+      <p class="section-note">Harness 会记录 Skill 选择、上下文传递、质量检查、证据缺口和导出状态，让运营团队知道结果从哪里来、为什么可信。</p>
     </div>
     <div class="evidence-panel reveal">
       <div class="trace-list">
-        <div class="trace-node hot">01 原始素材 -> 指标 / 证据摘录已捕获</div>
-        <div class="trace-node">02 D 洞察 -> C 草案 / 风险信号已注入</div>
-        <div class="trace-node">03 C 草案 -> N 排期 / 平台规则已应用</div>
-        <div class="trace-node hot">04 校验门禁 -> 交付导出 / 方案已就绪</div>
+        <div class="trace-node hot">收到任务 / 系统先读懂目标、平台、受众和限制条件</div>
+        <div class="trace-node">匹配能力 / 自动挑选合适的运营智能体和 Skill 组合</div>
+        <div class="trace-node">生成方案 / 产出内容、排期、触达动作或转化建议</div>
+        <div class="trace-node hot">复核交付 / 检查依据、风险和完整度，整理成可提交版本</div>
       </div>
     </div>
   </section>
@@ -108,22 +111,22 @@
   <section class="section" id="deployment">
     <div class="section-header reveal">
       <div>
-        <p class="section-kicker">工程接入</p>
-        <h2 class="section-title">本地可跑，<br>企业可接。</h2>
+        <p class="section-kicker">团队方法库</p>
+        <h2 class="section-title">每个团队都能沉淀，<br>自己的运营 Skill。</h2>
       </div>
-      <p class="section-note">保留 Mock 模式、FastAPI、Webhook、导出和日志链路。视觉升级不牺牲工程可用性。</p>
+      <p class="section-note">除了内置 Skill，用户可以新增自己的运营 Skill：定义输入、输出、提示词、检查规则和复核要求，沉淀团队自己的运营经验。</p>
     </div>
     <div class="deploy-grid">
-      <div class="file-card reveal"><p class="file-meta">接口</p><h3>FastAPI REST</h3><p>运行、智能体、流程、轨迹、导出。</p></div>
-      <div class="file-card reveal delay-1"><p class="file-meta">运行时</p><h3>Mock / LLM</h3><p>无 Key 可演示，有 Key 可接云端模型。</p></div>
-      <div class="file-card reveal delay-2"><p class="file-meta">存储</p><h3>SQLite + JSONL</h3><p>任务、步骤、归档物与事件日志双轨沉淀。</p></div>
+      <div class="file-card reveal"><p class="file-meta">定义</p><h3>输入与输出</h3><p>每个 Skill 都清楚声明需要什么材料、会交付什么结果。</p></div>
+      <div class="file-card reveal delay-1"><p class="file-meta">规则</p><h3>质量检查</h3><p>把平台适配、证据要求、敏感表达和人工复核写进 Skill。</p></div>
+      <div class="file-card reveal delay-2"><p class="file-meta">扩展</p><h3>团队方法库</h3><p>客户可以持续新增 Skill，让系统越来越贴近自己的运营流程。</p></div>
     </div>
   </section>
 </main>
 
 <footer>
-  <span>OPERAI ARCHIVE OS / 运营任务控制台</span>
-  <span>任务输入 · 结果复盘 · 证据核查 · 交付导出</span>
+  <span>OPERAI / 面向运营团队的 AI 工作平台</span>
+  <span>职能入口 · Skill 编排 · 质量评估 · 交付导出</span>
 </footer>
 
 <script src="main.js"></script>

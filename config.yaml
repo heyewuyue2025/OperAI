@@ -2,11 +2,11 @@
 
 llm:
   temperature: 0.4
-  max_tokens: 2048
-  timeout_seconds: 90
-  max_retries: 1
-  model_d: gpt-4o-mini
-  model_c: gpt-4o
+  max_tokens: 1400
+  timeout_seconds: 45
+  max_retries: 0
+  model_d: deepseek-v4-pro
+  model_c: deepseek-v4-pro
 
 paths:
   sqlite: data/operai.sqlite3

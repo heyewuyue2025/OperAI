@@ -55,7 +55,7 @@ def test_w1_t01_pipeline_three_steps_in_db() -> None:
         title="测试",
         brand_voice="克制",
         platforms=["weibo", "xhs"],
-        raw_input="校园音乐节预热，强调安全与包容。",
+        raw_input="新品冷萃杯上市，强调便携、防漏和日常办公场景。",
     )
     assert res["ok"]
     steps = query_all(

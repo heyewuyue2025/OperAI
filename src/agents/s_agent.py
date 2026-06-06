@@ -2,31 +2,12 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "community_actions": [
-        {"action": "发布彩排节目投票", "timing": "活动前 10 天", "goal": "提升参与感与社群黏性"},
-        {"action": "志愿者答疑快闪群", "timing": "活动前 3-7 天", "goal": "降低现场不确定性，建立信任"},
-        {"action": "活动后 UGC 征集", "timing": "活动后 1-3 天", "goal": "沉淀真实口碑素材，为下次活动蓄水"},
-        {"action": "铁粉专属预告", "timing": "活动前 24h", "goal": "回馈高频互动用户，强化归属感"},
-    ],
-    "kol_hints": [
-        {"profile": "校园音乐社团账号", "approach": "共创彩排花絮，强调「学生主办」叙事"},
-        {"profile": "本地生活/探店博主", "approach": "实地踩点短评，突出安全与包容氛围"},
-        {"profile": "校友圈意见领袖", "approach": "以「回母校看看」切入，覆盖已毕业校友群体"},
-    ],
-    "engagement_scripts": [
-        {"scenario": "评论询问时间地点", "script": "场次以正文为准，评论区置顶 FAQ 已更新～蹲后续记得点关注"},
-        {"scenario": "质疑安全保障", "script": "现场配备秩序志愿者与无酒精友好标识，具体措施见安全公告链接。"},
-        {"scenario": "询问报名条件", "script": "面向全校师生及校友，志愿者报名不限年级，详见公众号菜单栏～"},
-        {"scenario": "负面情绪宣泄", "script": "感谢关注。如有具体问题可私信，我们会尽快核实并反馈。"},
-    ],
-}
+MOCK: dict[str, Any] = {}
 
 
 def validate(payload: dict[str, Any]) -> list[str]:
@@ -48,9 +29,9 @@ def validate(payload: dict[str, Any]) -> list[str]:
 def _s_fallback(raw_input: str) -> dict[str, Any]:
     snippet = raw_input.strip().replace("\n", " ")[:160]
     return {
-        "community_actions": [{"action": "请人工策划", "timing": "待定", "goal": "模型降级"}],
-        "kol_hints": [{"profile": "待人工匹配", "approach": f"素材摘要：{snippet}"}],
-        "engagement_scripts": [{"scenario": "通用回复", "script": "感谢关注，我们将尽快回复。"}],
+        "community_actions": [{"action": "围绕当前任务建立互动主题", "timing": "待定", "goal": f"让用户理解任务价值并产生有效反馈：{snippet}"}],
+        "kol_hints": [{"profile": "与目标用户重合的内容创作者或社群节点", "approach": "基于真实素材共创内容，避免脱离任务场景"}],
+        "engagement_scripts": [{"scenario": "通用回复", "script": "感谢关注，我们会根据真实信息持续更新。"}],
         "_operai_fallback": "S-Agent LLM 不可用，已降级",
     }
 
@@ -61,7 +42,7 @@ def run_s(
 ) -> dict[str, Any]:
     _ = root
     if not use_llm:
-        return deepcopy(MOCK)
+        return _s_fallback(str(context.get("raw_input", "")))
 
     raw_input = str(context.get("raw_input", ""))
     upstream = context.get("upstream") or {}

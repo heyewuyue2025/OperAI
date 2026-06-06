@@ -27,16 +27,19 @@ def chat_json(
     client = get_client()
     if client is None:
         raise RuntimeError("OPENAI_API_KEY 未配置")
-    resp = client.chat.completions.create(
-        model=model,
-        temperature=temperature,
-        max_tokens=max_tokens,
-        timeout=timeout,
-        messages=[
+    request: dict[str, Any] = {
+        "model": model,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "timeout": timeout,
+        "messages": [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-    )
+    }
+    if model.lower().startswith("deepseek-v4"):
+        request["extra_body"] = {"thinking": {"type": "disabled"}}
+    resp = client.chat.completions.create(**request)
     choice = resp.choices[0].message
     if not choice or not choice.content:
         raise RuntimeError("模型返回空内容")

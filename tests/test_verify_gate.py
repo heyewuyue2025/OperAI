@@ -33,7 +33,7 @@ def test_archive_success_run_not_blocked() -> None:
         title="测试",
         brand_voice="克制",
         platforms=["weibo", "xhs"],
-        raw_input="校园音乐节预热，强调安全与包容。",
+        raw_input="新品冷萃杯上市，强调便携、防漏和日常办公场景。",
     )
     assert res["ok"]
     pack = _archive_pack()
@@ -41,7 +41,7 @@ def test_archive_success_run_not_blocked() -> None:
         {
             "d_out": res["d_out"],
             "c_out": res["c_out"],
-            "raw_input": "校园音乐节预热，强调安全与包容。",
+            "raw_input": "新品冷萃杯上市，强调便携、防漏和日常办公场景。",
             "run_status": res["status"],
         },
         pack=pack,
@@ -69,7 +69,7 @@ def test_sensitive_hit_blocks_export() -> None:
             "c_out": {
                 "drafts": {
                     "weibo": "这是造谣内容需要处理",
-                    "wechat": "正常校园音乐节说明文案",
+                    "wechat": "正常新品上市说明文案",
                 }
             },
             "raw_input": "测试",

@@ -8,7 +8,6 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
@@ -20,6 +19,18 @@ OPTIMAL_WINDOWS: dict[str, str] = {
     "weibo": "周二/周四 18:30-21:00（互动高峰）",
     "wechat": "周日 20:00（长阅读窗口）",
     "xhs": "周五 19:00-22:00（社区活跃）",
+    "bilibili": "周五/周六 19:00-22:30（长视频观看窗口）",
+    "douyin": "每日 12:00-13:30 或 19:00-22:00（短视频活跃）",
+    "kuaishou": "每日 18:00-21:30（社区互动窗口）",
+}
+
+PLATFORM_NOTES: dict[str, str] = {
+    "weibo": "短句和话题标签优先；首评可放链接引导。",
+    "wechat": "标题克制；关键信息用列表，适合承载完整说明。",
+    "xhs": "场景化表达，适度口语，避免夸大功效。",
+    "bilibili": "适合筹备记录、幕后过程和较完整的视频说明。",
+    "douyin": "开头三秒要直接给看点，适合短视频口播和花絮。",
+    "kuaishou": "表达更生活化，适合连续更新和社区互动。",
 }
 
 N_FALLBACK: dict[str, Any] = {
@@ -28,15 +39,11 @@ N_FALLBACK: dict[str, Any] = {
         {"platform": "wechat", "window": OPTIMAL_WINDOWS["wechat"], "reason": "长阅读窗口"},
         {"platform": "xhs", "window": OPTIMAL_WINDOWS["xhs"], "reason": "社区活跃"},
     ],
-    "hashtags": ["#校园音乐节", "#学生主办"],
-    "platform_notes": {
-        "weibo": "140字内为主；首评可放链接引导。",
-        "wechat": "标题克制；关键信息用列表。",
-        "xhs": "适度emoji；避免夸大功效。",
-    },
+    "hashtags": ["#运营方案", "#内容发布"],
+    "platform_notes": {key: PLATFORM_NOTES[key] for key in ("weibo", "wechat", "xhs")},
     "first_comment_suggestions": [
-        {"platform": "weibo", "text": "详情见评论区置顶～"},
-        {"platform": "xhs", "text": "想蹲后续的留言告诉我想看什么～"},
+        {"platform": "weibo", "text": "关键信息可在评论区补充说明。"},
+        {"platform": "xhs", "text": "欢迎在评论区补充你的问题或反馈。"},
     ],
 }
 
@@ -64,10 +71,20 @@ def run_n(
     platforms: list[str] | None = None, root: Path | None = None,
 ) -> dict[str, Any]:
     if not use_llm:
-        out = deepcopy(N_FALLBACK)
-        # 注入非 LLM 窗口数据
-        out["_optimal_windows"] = {p: OPTIMAL_WINDOWS.get(p, "") for p in (platforms or [])}
-        return out
+        selected = platforms or ["weibo", "wechat", "xhs"]
+        return {
+            "schedule_suggestions": [
+                {"platform": p, "window": OPTIMAL_WINDOWS.get(p, "按平台历史活跃数据选择"), "reason": "匹配平台活跃窗口"}
+                for p in selected
+            ],
+            "hashtags": ["#运营方案", "#内容发布"],
+            "platform_notes": {p: PLATFORM_NOTES.get(p, "按平台内容规范人工复核。") for p in selected},
+            "first_comment_suggestions": [
+                {"platform": p, "text": "根据本次任务材料补充关键信息和下一步入口。"} for p in selected[:2]
+            ],
+            "_optimal_windows": {p: OPTIMAL_WINDOWS.get(p, "") for p in selected},
+            "_operai_fallback": "N-Agent 使用规则排期，未调用 LLM",
+        }
 
     system = (
         "你是渠道运营。根据 drafts 给出分发策略。只输出 JSON："
@@ -92,9 +109,20 @@ def run_n(
         out["_optimal_windows"] = payload["optimal_windows"]
         return out
     except Exception:
-        out = deepcopy(N_FALLBACK)
-        out["_operai_fallback"] = "LLM 不可用，已降级"
-        return out
+        selected = plats or ["weibo", "wechat", "xhs"]
+        return {
+            "schedule_suggestions": [
+                {"platform": p, "window": OPTIMAL_WINDOWS.get(p, "按平台历史活跃数据选择"), "reason": "LLM 不可用，使用规则排期"}
+                for p in selected
+            ],
+            "hashtags": ["#运营方案", "#内容发布"],
+            "platform_notes": {p: PLATFORM_NOTES.get(p, "按平台内容规范人工复核。") for p in selected},
+            "first_comment_suggestions": [
+                {"platform": p, "text": "根据本次任务材料补充关键信息和下一步入口。"} for p in selected[:2]
+            ],
+            "_optimal_windows": {p: OPTIMAL_WINDOWS.get(p, "") for p in selected},
+            "_operai_fallback": "LLM 不可用，已降级为规则排期",
+        }
 
 
 def run_n_plugin(*, use_llm: bool, context: dict[str, Any], llm_cfg: dict[str, Any], root: Path | None = None) -> dict[str, Any]:

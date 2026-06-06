@@ -2,31 +2,12 @@
 from __future__ import annotations
 
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Any
 
 from ..llm_json import chat_json_parse
 
-MOCK: dict[str, Any] = {
-    "feature_insights": [
-        {"feature": "活动报名页", "insight": "流程步骤过多（当前 5 步）会拉低完成率 20-30%", "metric_ref": "upstream.D"},
-        {"feature": "消息通知", "insight": "彩排提醒需可关闭，避免高频打扰导致静默取关", "metric_ref": "raw_input"},
-        {"feature": "内容分享卡片", "insight": "带「学生主办」标签的分享点击率高出普通卡片 1.8 倍", "metric_ref": "upstream.C"},
-        {"feature": "评论区管理", "insight": "含 FAQ 关键词的首评可降低 40% 重复咨询", "metric_ref": "upstream.N"},
-    ],
-    "ux_signals": [
-        "移动端首屏信息密度偏高，关键时间/地点需一屏可见",
-        "iOS Safari 下报名表单 datepicker 弹窗遮挡提交按钮",
-        "安卓端深色模式下品牌色对比度不足（WCAG AA 未达标）",
-    ],
-    "iteration_hints": [
-        {"priority": "P0", "recommendation": "报名页合并为 3 步以内；datepicker 改用原生组件"},
-        {"priority": "P1", "recommendation": "增加「无酒精友好」标签筛选，支持一键筛选对应场次"},
-        {"priority": "P1", "recommendation": "消息通知增加免打扰时段设置（22:00-08:00 默认静默）"},
-        {"priority": "P2", "recommendation": "分享卡片支持自定义封面图，替换默认 logo"},
-    ],
-}
+MOCK: dict[str, Any] = {}
 
 
 def validate(payload: dict[str, Any]) -> list[str]:
@@ -58,7 +39,7 @@ def run_p(
 ) -> dict[str, Any]:
     _ = root
     if not use_llm:
-        return deepcopy(MOCK)
+        return _p_fallback(str(context.get("raw_input", "")))
 
     raw_input = str(context.get("raw_input", ""))
     upstream = context.get("upstream") or {}
