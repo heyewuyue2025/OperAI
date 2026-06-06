@@ -18,6 +18,38 @@ from ..platform_rules import rules_for_platforms
 # 平台硬限制（非 LLM 校验用）
 PLATFORM_LIMITS = {"weibo": 2000, "wechat": 20000, "xhs": 1000, "bilibili": 2000, "douyin": 500, "kuaishou": 500}
 _DRIFT_TERMS = ("投资", "股票", "基金", "理财", "收益", "本金", "持仓", "市场波动", "短期情绪")
+PLATFORM_STYLE_PLAYBOOKS = {
+    "weibo": {
+        "role": "公共话题场，适合短句、话题标签、即时互动和轻讨论",
+        "shape": "话题标签 + 2-3 句核心表达 + 一个评论区问题",
+        "avoid": "长文章结构、产品说明书、堆卖点、公众号式小标题",
+    },
+    "wechat": {
+        "role": "订阅阅读场，适合标题、摘要、导语、段落小标题和完整解释",
+        "shape": "标题 + 摘要 + 导语 + 2-3 个中文小标题正文",
+        "avoid": "只给清单、过短口播、像微博一样抛问题就结束",
+    },
+    "xhs": {
+        "role": "生活经验笔记和搜索种草场，重真实体验、具体场景、收藏价值",
+        "shape": "笔记标题 + 第一人称体验 + 场景清单 + 话题标签",
+        "avoid": "硬广、品牌公告、适合/场景字段、功效承诺、空泛高级感",
+    },
+    "bilibili": {
+        "role": "视频内容社区，适合选题包装、封面字、分段结构、弹幕互动",
+        "shape": "视频标题 + 封面字 + 本期看点 + 时间线/分段 + 弹幕问题",
+        "avoid": "纯图文文案、只写产品简介、标题党和与内容无关的夸张封面",
+    },
+    "douyin": {
+        "role": "高节奏短视频推荐流，适合 3 秒钩子、镜头、字幕和口播",
+        "shape": "开头 3 秒 + 镜头序列 + 字幕/口播 + 评论引导",
+        "avoid": "长段落、慢铺垫、品牌自我介绍开头、公众号式正文",
+    },
+    "kuaishou": {
+        "role": "生活化短视频和熟人感社区，重真实口播、日常场景、评论互动",
+        "shape": "说人话口播 + 真实使用场景 + 朴素判断 + 评论区问题",
+        "avoid": "端着的广告腔、过度精致、空洞概念和外站导流话术",
+    },
+}
 
 MOCK: dict[str, Any] = {}
 
@@ -115,6 +147,15 @@ def _extract_sell_points(raw_input: str) -> list[str]:
     return points[:5] or ["口味明确", "饮用方便", "适合日常场景"]
 
 
+def _point(points: list[str], idx: int, fallback: str) -> str:
+    return points[idx] if len(points) > idx else fallback
+
+
+def _platform_playbooks_for(platforms: list[str]) -> dict[str, dict[str, str]]:
+    selected = platforms or ["weibo", "wechat", "xhs"]
+    return {plat: PLATFORM_STYLE_PLAYBOOKS[plat] for plat in selected if plat in PLATFORM_STYLE_PLAYBOOKS}
+
+
 def _public_summary(raw_input: str) -> str:
     product = _extract_product_name(raw_input)
     audience = _extract_audience(raw_input)
@@ -145,53 +186,71 @@ def _platform_native_drafts(raw_input: str, platforms: list[str], brand_voice: s
     summary = _public_summary(raw_input)
     point_line = "、".join(points[:3])
     scene_line = " / ".join(scenes[:3])
-    voice_hint = f"语气按「{brand_voice}」收住。" if brand_voice else "语气保持真实克制。"
+    voice_hint = brand_voice or "真实、克制、有生活感"
+    p0 = _point(points, 0, "口味不腻")
+    p1 = _point(points, 1, "饮用方便")
+    p2 = _point(points, 2, "负担轻一点")
+    s0 = _point(scenes, 0, "早餐路上")
+    s1 = _point(scenes, 1, "下午犯困")
+    s2 = _point(scenes, 2, "运动后")
 
     templates = {
         "weibo": (
             f"# {product} #".replace("# ", "#").replace(" #", "#")
-            + f" 早八赶路、下午三点犯困、练完想补一口的时候，冰箱里有一瓶顺手的即饮拿铁会省心很多。\n"
-            f"{product} 重点放在 {point_line}，不讲夸张故事，只讲真实口味和日常方便。\n"
-            f"你最想把它放在哪个时段？评论区聊聊。"
+            + f" 今天想认真聊一个很小的日常选择：{s0}、{s1}、{s2}，你可能只是想喝点顺口、不太甜、拿了就走的东西。\n"
+            f"{product} 这次主打 {p0}、{p1}、{p2}。我们不把一瓶饮品讲成万能答案，只把它放回真实生活里看。\n"
+            f"如果只能选一个使用场景，你会把它放在什么时候？评论区我想看真实答案。"
         ),
         "wechat": (
-            f"标题：一瓶「{product}」背后的日常时刻\n\n"
-            f"导语：{summary}。\n\n"
+            f"标题：一瓶 {product}，先从真实日常讲起\n\n"
+            f"摘要：{summary}。\n\n"
+            f"导语：新品发布最怕只剩一串卖点。对 {audience} 来说，真正重要的是它能不能进入一个具体时刻，并且被自然理解。\n\n"
             f"正文：\n"
-            f"很多饮品新品喜欢把自己讲得很重，但这次我们更想回到一个简单问题：在 {scene_line} 这些时刻，什么样的一瓶饮品会让人愿意重复拿起？\n\n"
-            f"「{product}」会把重点放在三件事：第一，入口要顺；第二，配料信息要讲清楚；第三，围绕 {audience} 的真实饮用场景表达，不做夸张承诺。\n\n"
-            f"这不是一篇功能清单，而是一份新品上线前的说明：我们希望它是一瓶轻一点、方便一点、口味记忆点更明确的日常选择。"
+            f"一、先看它进入什么场景\n"
+            f"{scene_line}，这些不是宏大的消费趋势，而是每天都会发生的小断点。{product} 的表达应该从这些断点出发，而不是从品牌自夸出发。\n\n"
+            f"二、再讲用户能立刻感知什么\n"
+            f"这次可以被清楚记住的点是 {point_line}。公众号正文里不急着制造情绪，而是把配料、口味、饮用方式和适用边界讲明白。\n\n"
+            f"三、最后留下可验证的问题\n"
+            f"发布后我们会继续收集试喝反馈：入口是否自然、甜度是否合适、在 {s0} 和 {s1} 这类场景里是否真的顺手。内容不追求夸张，而追求能被复盘。"
         ),
         "xhs": (
-            f"{product}｜我会放进办公室冰箱的一瓶\n\n"
-            f"最近试到一瓶更适合工作日节奏的燕麦拿铁：不是甜腻那挂，黑芝麻香气会比较明显。\n\n"
-            f"我会把它放在这几个时刻：\n"
-            f"- 早上来不及认真吃早餐\n"
-            f"- 下午三四点开始犯困\n"
-            f"- 运动后想喝点轻一点的东西\n\n"
-            f"比较打动我的是 {point_line}。{voice_hint} 不把它说成万能饮品，单纯记录一个更方便的日常选择。"
+            f"办公室冰箱想囤这个｜{product}\n\n"
+            f"最近在试一瓶 {product}，它不是那种一喝就很甜、很像甜品的即饮拿铁。对我来说，比较加分的是 {p0}，还有 {p1} 这件事。\n\n"
+            f"我会把它放进这几个真实瞬间：\n"
+            f"1. {s0}，来不及认真吃但不想空着\n"
+            f"2. {s1}，想喝点有味道但别太厚重\n"
+            f"3. {s2}，想补一口又不想被甜味压住\n\n"
+            f"小提醒：这类饮品不要被写成保健品，也不用硬凹精致生活。按「{voice_hint}」讲清楚口味、甜度、适合放在哪些日常时刻，就已经够有用。\n\n"
+            f"#办公室饮品 #燕麦拿铁 #黑芝麻 #低糖饮品 #打工人冰箱 #新品试喝"
         ),
         "bilibili": (
-            f"标题：把「{product}」拆开看看：它到底适合谁？\n\n"
+            f"视频标题：黑芝麻燕麦拿铁值得买吗？我们把 {product} 放进 3 个真实场景试一下\n"
+            f"封面字：真实试喝 / 不吹不黑\n\n"
             f"本期看点：\n"
-            f"1. 为什么黑芝麻 + 燕麦拿铁会成为这次新品方向\n"
-            f"2. 低糖、高纤维和轻负担这些词，用户真正能感知到什么\n"
-            f"3. 早餐、下午犯困、运动后这三类场景里，它有没有真实使用价值\n\n"
-            f"视频结构：先看包装和配料信息，再做试喝记录，最后聊适合人群和不适合的期待。\n\n"
-            f"弹幕问题：你更在意饮品的口味、配料，还是喝起来省不省事？"
+            f"- {point_line} 这些点，哪些是入口第一时间能感知到的\n"
+            f"- {s0}、{s1}、{s2} 三个场景里，它是不是都成立\n"
+            f"- 适合谁，不适合谁，尽量讲清楚边界\n\n"
+            f"视频结构：\n"
+            f"00:00 开箱和包装信息\n"
+            f"00:20 配料表和口味预期\n"
+            f"00:55 冷藏后第一口试喝\n"
+            f"01:40 三个使用场景复盘\n"
+            f"02:30 一句话结论：推荐给谁\n\n"
+            f"弹幕互动：你喝即饮拿铁最在意甜度、香气、方便性，还是喝完会不会腻？"
         ),
         "douyin": (
-            f"开头 3 秒：早上来不及、下午困到发呆，冰箱里拿一瓶就能走。\n"
-            f"镜头 1：打开冷藏柜，拿出「{product}」。\n"
-            f"镜头 2：近景展示黑芝麻色泽和即饮包装。\n"
-            f"口播：它主打 {point_line}，不是把饮品说成神器，而是给忙碌日常多一个顺手选择。\n"
-            f"收尾：下一条做真实试喝，看看香气和甜度到底怎么样。"
+            f"开头 3 秒：早八来不及吃？先别空腹硬扛。\n"
+            f"镜头 1：手伸进冷藏柜，拿出「{product}」。\n"
+            f"镜头 2：倒进透明杯，给黑芝麻色泽和质地一个近景。\n"
+            f"镜头 3：快切 {s0}、{s1}、{s2} 三个画面。\n"
+            f"口播：这瓶主打 {point_line}。不讲夸张功效，就看它是不是顺手、好喝、甜度舒服。\n"
+            f"结尾字幕：想看完整试喝？评论区告诉我先测甜度还是香气。"
         ),
         "kuaishou": (
-            f"说人话版：这瓶「{product}」就是给日常忙、但又想喝得轻一点的人准备的。\n"
-            f"早上赶时间、下午犯困、运动后不想喝太甜的时候，都能直接从冰箱拿出来。\n"
-            f"重点别讲玄：{point_line}，喝起来方便，信息也讲清楚。\n"
-            f"后面继续更新真实试喝，有想问的直接留言。"
+            f"这瓶「{product}」咱就说人话。\n"
+            f"{s0}、{s1}、{s2}，有时候不需要多复杂，就是想拿一瓶方便、别太甜、喝着顺口的。\n"
+            f"它主要看三点：{point_line}。别整太虚的，入口顺不顺、甜不甜、喝完腻不腻，大家一试就知道。\n"
+            f"后面我把真实试喝发出来，有想问的评论区说，我按你们关心的点测。"
         ),
     }
     selected = platforms or ["weibo", "wechat", "xhs"]
@@ -217,16 +276,19 @@ def _is_platform_native(plat: str, text: str, raw_input: str) -> bool:
         "对应哪些真实场景",
         "一次新品背后的真实拆解",
         "不把它说成万能解决方案",
+        "它解决的是一个小但高频的时刻",
+        "内容重点会放在",
+        "用户真正能感知到什么",
     )
     if any(marker in str(text) for marker in weak_markers):
         return False
     checks = {
-        "weibo": lambda t: "#" in t or "评论" in t,
-        "wechat": lambda t: "标题" in t and ("正文" in t or "导语" in t),
-        "xhs": lambda t: "适合" in t and ("｜" in t or "-" in t),
-        "bilibili": lambda t: "本期看点" in t or "弹幕" in t,
-        "douyin": lambda t: "开头" in t or "镜头" in t or "口播" in t,
-        "kuaishou": lambda t: "真实" in t or "说人话" in t or "留言" in t,
+        "weibo": lambda t: "#" in t and ("评论" in t or "你会" in t) and len(t) <= 360,
+        "wechat": lambda t: "标题" in t and "摘要" in t and "正文" in t and ("一、" in t or "01" in t),
+        "xhs": lambda t: "｜" in t and "我" in t and "#" in t and ("瞬间" in t or "冰箱" in t),
+        "bilibili": lambda t: "视频标题" in t and "封面字" in t and "本期看点" in t and "弹幕" in t,
+        "douyin": lambda t: "开头 3 秒" in t and "镜头" in t and "口播" in t and "评论区" in t,
+        "kuaishou": lambda t: "说人话" in t and ("真实" in t or "评论区" in t),
     }
     return checks.get(plat, lambda _t: True)(str(text))
 
@@ -303,6 +365,11 @@ def run_c(
         "必须让每个平台像它自己：微博要短句、话题和互动；微信公众号要标题/导语/正文段落；"
         "小红书要场景化种草和清单感；哔哩哔哩要本期看点和弹幕/评论互动；"
         "抖音要开头3秒、镜头和口播；快手要生活化、真实感、说人话。"
+        "你还会收到 platform_style_playbooks，它定义了每个平台的内容场景、结构和禁忌，必须逐条遵守。"
+        "具体要求：小红书必须像用户笔记，第一人称体验、生活细节、话题标签，不要写“适合：/场景：”字段；"
+        "B站必须像视频策划，包含标题、看点、时间线或分段、弹幕互动；"
+        "抖音必须是镜头脚本，不要写长段落；快手必须口语可信，不要像广告播报；"
+        "公众号必须像一篇可阅读文章，有摘要和小标题，不要只有清单。"
         "不要把 raw_input 整段复述给用户；不要把“不能/禁止/避免”这类合规约束写进公开文案正文，"
         "只在 compliance_notes 中说明边界。"
         "只输出 JSON："
@@ -315,6 +382,7 @@ def run_c(
         "brand_voice": brand_voice,
         "d_agent": d_out,
         "platforms": platforms,
+        "platform_style_playbooks": _platform_playbooks_for(platforms),
     }
     if root is not None:
         payload["platform_rules"] = rules_for_platforms(root, platforms)

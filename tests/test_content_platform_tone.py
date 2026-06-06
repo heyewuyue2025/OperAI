@@ -22,11 +22,16 @@ def test_content_fallback_generates_platform_native_drafts() -> None:
     drafts = out["drafts"]
     assert set(drafts) == {"weibo", "wechat", "xhs", "bilibili", "douyin", "kuaishou"}
     assert "#黑芝麻燕麦拿铁#" in drafts["weibo"]
+    assert "评论区" in drafts["weibo"]
     assert "标题" in drafts["wechat"] and "正文" in drafts["wechat"]
+    assert "摘要" in drafts["wechat"] and "导语" in drafts["wechat"]
     assert "冰箱" in drafts["xhs"] and "｜" in drafts["xhs"]
-    assert "本期看点" in drafts["bilibili"]
-    assert "开头" in drafts["douyin"] and "镜头" in drafts["douyin"]
-    assert "说人话" in drafts["kuaishou"] or "真实" in drafts["kuaishou"]
+    assert "#办公室饮品" in drafts["xhs"]
+    assert "视频标题" in drafts["bilibili"] and "封面字" in drafts["bilibili"]
+    assert "本期看点" in drafts["bilibili"] and "弹幕互动" in drafts["bilibili"]
+    assert "开头 3 秒" in drafts["douyin"] and "镜头" in drafts["douyin"]
+    assert "评论区" in drafts["douyin"]
+    assert "说人话" in drafts["kuaishou"] and "评论区" in drafts["kuaishou"]
     assert all("我们是一家面向年轻白领" not in text for text in drafts.values())
     assert all("适合：" not in text and "场景：" not in text for text in drafts.values())
 
@@ -71,4 +76,5 @@ def test_content_normalizer_replaces_surface_level_platform_copy() -> None:
     assert "场景：" not in out["drafts"]["xhs"]
     assert "冰箱" in out["drafts"]["xhs"]
     assert "对应哪些真实场景" not in out["drafts"]["bilibili"]
-    assert "本期看点" in out["drafts"]["bilibili"]
+    assert "视频标题" in out["drafts"]["bilibili"]
+    assert "封面字" in out["drafts"]["bilibili"]
