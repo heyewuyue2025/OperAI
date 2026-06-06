@@ -280,11 +280,42 @@ def _deliverable_item_text(item: Any) -> str:
     return label_value(item).strip()
 
 
+def _deliverable_copy_section(section: dict[str, Any]) -> str:
+    items = section.get("items", [])
+    cards = []
+    for idx, item in enumerate(items[:6], start=1):
+        if isinstance(item, dict):
+            platform = label_value(item.get("platform", "平台"))
+            body = _deliverable_item_text(item.get("body", ""))
+        else:
+            platform = "内容稿"
+            body = _deliverable_item_text(item)
+        if not body:
+            continue
+        cards.append(
+            "<article class='oa-copy-card'>"
+            f"<header><b>{idx:02d}</b><span>{_e(platform)}</span></header>"
+            f"<div>{_e(body)}</div>"
+            "</article>"
+        )
+    if not cards:
+        cards = ["<article class='oa-copy-card'><header><b>--</b><span>待生成</span></header><div>等待内容智能体补齐。</div></article>"]
+    return (
+        "<div class='oa-deliverable-section oa-deliverable-section--wide oa-copy-section'>"
+        f"<h4>{_e(section.get('title', '内容主稿'))}</h4>"
+        f"<div class='oa-copy-list'>{''.join(cards)}</div>"
+        "</div>"
+    )
+
+
 def _role_deliverable_panel(role_id: str, results: dict[str, Any]) -> str:
     bundle = build_role_deliverable(role_id, results)
     focus = "".join(f"<span>{_e(item)}</span>" for item in bundle["quality_focus"])
     sections = []
     for section in bundle["sections"]:
+        if section.get("layout") == "wide_copy":
+            sections.append(_deliverable_copy_section(section))
+            continue
         items = [item for item in section.get("items", []) if _deliverable_item_text(item)]
         if not items:
             items = ["等待该职能主智能体补齐。"]

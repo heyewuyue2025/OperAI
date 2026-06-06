@@ -366,7 +366,7 @@ def _sections_for_family(family: str, payloads: dict[str, dict[str, Any]], prima
 
     if family == "content_pack":
         return [
-            {"title": "内容主稿", "items": _dict_values(c_out.get("drafts") or {})},
+            {"title": "内容主稿", "layout": "wide_copy", "items": _draft_items(c_out.get("drafts") or {})},
             {"title": "标题与口播", "items": [*(c_out.get("title_variants") or []), c_out.get("short_video_script", "")]},
             {"title": "发布节奏", "items": n_out.get("schedule_suggestions") or []},
         ]
@@ -418,6 +418,14 @@ def _sections_for_family(family: str, payloads: dict[str, dict[str, Any]], prima
 
 def _dict_values(value: dict[str, Any]) -> list[Any]:
     return [item for item in value.values() if item]
+
+
+def _draft_items(value: dict[str, Any]) -> list[dict[str, str]]:
+    return [
+        {"platform": str(platform), "body": str(body)}
+        for platform, body in value.items()
+        if str(body).strip()
+    ]
 
 
 def _fallback_items(*payloads: dict[str, Any]) -> list[Any]:

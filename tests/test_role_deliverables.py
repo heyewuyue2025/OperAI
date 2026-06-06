@@ -65,3 +65,29 @@ def test_role_plan_keeps_harness_core_but_uses_role_primary_runners() -> None:
         assert "platform_copywriting" not in plan_ids
         assert "delivery_package" not in plan_ids
         assert deliverable.primary_runner in runners
+
+
+def test_content_deliverable_keeps_drafts_as_wide_copy_items() -> None:
+    from src.role_deliverables import build_role_deliverable
+
+    bundle = build_role_deliverable(
+        "content_ops",
+        {
+            "platform_copywriting": {
+                "runner": "C",
+                "payload": {
+                    "drafts": {
+                        "weibo": "#新品# 一句话短内容",
+                        "wechat": "标题：新品说明\n\n正文：这是一段需要按正常宽度展示的公众号正文。",
+                    },
+                    "title_variants": ["备选标题"],
+                },
+            }
+        },
+    )
+
+    main = bundle["sections"][0]
+    assert main["title"] == "内容主稿"
+    assert main["layout"] == "wide_copy"
+    assert main["items"][1]["platform"] == "wechat"
+    assert "公众号正文" in main["items"][1]["body"]
