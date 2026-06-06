@@ -1154,15 +1154,23 @@ hr { border-color: var(--oa-line) !important; }
   font-weight: 820;
 }
 .oa-copy-card div {
-  max-width: 980px;
+  max-width: none;
   color: #2c271f !important;
   font-family: var(--oa-label);
   font-size: .92rem;
   font-weight: 650;
   line-height: 1.72;
-  white-space: pre-wrap;
+  white-space: normal;
   word-break: normal;
   overflow-wrap: break-word;
+}
+.oa-copy-card small {
+  display: block;
+  margin-top: 7px;
+  color: var(--oa-archive) !important;
+  font-family: var(--oa-label);
+  font-size: .76rem;
+  font-weight: 720;
 }
 .oa-run-record {
   display: flex;
@@ -1361,6 +1369,25 @@ hr { border-color: var(--oa-line) !important; }
 .oa-output-card--plan {
   background:
     linear-gradient(135deg, rgba(255,253,246,.90), rgba(247,241,230,.68));
+}
+
+.oa-draft-preview {
+  margin: 8px 0 12px;
+  padding: 18px 20px;
+  border: 1px solid rgba(23,21,18,.22);
+  border-left: 3px solid var(--oa-red);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(191,59,37,.045), transparent 16rem),
+    rgba(255,253,246,.88);
+  color: #201c17 !important;
+  font-family: var(--oa-label);
+  font-size: .98rem;
+  font-weight: 640;
+  line-height: 1.82;
+  white-space: pre-wrap;
+  word-break: normal;
+  overflow-wrap: break-word;
+  box-shadow: 0 12px 28px rgba(55,43,29,.08);
 }
 
 .oa-output-chips {

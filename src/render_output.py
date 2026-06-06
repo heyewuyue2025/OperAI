@@ -63,6 +63,18 @@ def _chips(items: list[Any], *, prefix: str = "") -> None:
     st.markdown(f"<div class='oa-output-chips'>{html}</div>", unsafe_allow_html=True)
 
 
+def _draft_preview(text: str) -> None:
+    st.markdown(
+        f"<div class='oa-draft-preview'>{_e(text)}</div>",
+        unsafe_allow_html=True,
+    )
+
+
+def _draft_height(text: str) -> int:
+    lines = str(text).count("\n") + max(1, len(str(text)) // 34)
+    return max(240, min(520, 96 + lines * 24))
+
+
 def render(agent_id: str, output: dict[str, Any], *, key_prefix: str = "") -> None:
     """根据 Agent 类型分发到对应的渲染器。"""
     renderer = _RENDERERS.get(agent_id.upper())
@@ -132,12 +144,12 @@ def _render_c(output: dict[str, Any], *, key_prefix: str = "") -> None:
         for idx, plat in enumerate(platforms):
             with tabs[idx]:
                 _section_title(labels.get(plat, plat), f"{len(drafts[plat])} 字")
+                _draft_preview(str(drafts[plat]))
                 st.text_area(
-                    f"{plat}_draft",
+                    "复制区",
                     value=drafts[plat],
-                    height=200,
+                    height=_draft_height(str(drafts[plat])),
                     key=f"{key_prefix}_draft_{plat}",
-                    label_visibility="collapsed",
                 )
                 _text_card("可直接复制使用，建议人工终审后发布。", kind="note", limit=80)
 

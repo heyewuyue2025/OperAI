@@ -287,15 +287,18 @@ def _deliverable_copy_section(section: dict[str, Any]) -> str:
         if isinstance(item, dict):
             platform = label_value(item.get("platform", "平台"))
             body = _deliverable_item_text(item.get("body", ""))
+            preview = _deliverable_item_text(item.get("preview", "")) or body
         else:
             platform = "内容稿"
             body = _deliverable_item_text(item)
+            preview = body
         if not body:
             continue
         cards.append(
             "<article class='oa-copy-card'>"
             f"<header><b>{idx:02d}</b><span>{_e(platform)}</span></header>"
-            f"<div>{_e(body)}</div>"
+            f"<div>{_e(preview)}</div>"
+            "<small>完整正文见上方平台结果标签页</small>"
             "</article>"
         )
     if not cards:

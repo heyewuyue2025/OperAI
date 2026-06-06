@@ -422,10 +422,17 @@ def _dict_values(value: dict[str, Any]) -> list[Any]:
 
 def _draft_items(value: dict[str, Any]) -> list[dict[str, str]]:
     return [
-        {"platform": str(platform), "body": str(body)}
+        {"platform": str(platform), "body": str(body), "preview": _preview_text(str(body))}
         for platform, body in value.items()
         if str(body).strip()
     ]
+
+
+def _preview_text(text: str, limit: int = 96) -> str:
+    compact = " ".join(text.strip().split())
+    if len(compact) <= limit:
+        return compact
+    return compact[: limit - 1] + "…"
 
 
 def _fallback_items(*payloads: dict[str, Any]) -> list[Any]:

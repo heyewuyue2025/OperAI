@@ -91,3 +91,6 @@ def test_content_deliverable_keeps_drafts_as_wide_copy_items() -> None:
     assert main["layout"] == "wide_copy"
     assert main["items"][1]["platform"] == "wechat"
     assert "公众号正文" in main["items"][1]["body"]
+    assert "preview" in main["items"][1]
+    assert "\n\n" not in main["items"][1]["preview"]
+    assert len(main["items"][1]["preview"]) < len(main["items"][1]["body"])

@@ -90,7 +90,9 @@ def _extract_audience(raw_input: str) -> str:
     for pattern in patterns:
         match = re.search(pattern, raw_input)
         if match:
-            return match.group(1).strip(" ，,。")
+            value = match.group(1).strip(" ，,。")
+            value = re.split(r"[，,](?:常见|使用|主要|核心|场景)", value)[0].strip(" ，,。")
+            return value
     return "正在寻找轻负担日常选择的人"
 
 
@@ -148,49 +150,48 @@ def _platform_native_drafts(raw_input: str, platforms: list[str], brand_voice: s
     templates = {
         "weibo": (
             f"# {product} #".replace("# ", "#").replace(" #", "#")
-            + f" 今天想聊一个很具体的日常选择：{scene_line}，需要一杯方便、轻负担、口味不无聊的即饮饮品。\n"
-            f"{product} 的重点不是制造焦虑，而是把 {point_line} 放进更顺手的生活场景里。\n"
-            f"你通常会在哪个时段喝？评论区告诉我们。"
+            + f" 早八赶路、下午三点犯困、练完想补一口的时候，冰箱里有一瓶顺手的即饮拿铁会省心很多。\n"
+            f"{product} 重点放在 {point_line}，不讲夸张故事，只讲真实口味和日常方便。\n"
+            f"你最想把它放在哪个时段？评论区聊聊。"
         ),
         "wechat": (
-            f"标题：为什么我们想做一瓶「{product}」\n\n"
+            f"标题：一瓶「{product}」背后的日常时刻\n\n"
             f"导语：{summary}。\n\n"
             f"正文：\n"
-            f"1. 它解决的是一个小但高频的时刻：{scene_line}。\n"
-            f"2. 内容重点会放在真实口味、配料信息和适合人群，不做夸张承诺。\n"
-            f"3. 面向 {audience}，我们会用更清楚的方式解释新品卖点：{point_line}。\n\n"
-            f"结尾：如果你也在找一杯不沉重的日常饮品，可以先把这次新品加入尝鲜清单。"
+            f"很多饮品新品喜欢把自己讲得很重，但这次我们更想回到一个简单问题：在 {scene_line} 这些时刻，什么样的一瓶饮品会让人愿意重复拿起？\n\n"
+            f"「{product}」会把重点放在三件事：第一，入口要顺；第二，配料信息要讲清楚；第三，围绕 {audience} 的真实饮用场景表达，不做夸张承诺。\n\n"
+            f"这不是一篇功能清单，而是一份新品上线前的说明：我们希望它是一瓶轻一点、方便一点、口味记忆点更明确的日常选择。"
         ),
         "xhs": (
-            f"{product}｜给忙碌日常的一杯轻负担\n\n"
-            f"适合：{audience}\n"
-            f"场景：{scene_line}\n"
-            f"我会关注的 3 个点：\n"
-            f"- {points[0]}\n"
-            f"- {points[1] if len(points) > 1 else '入口顺不顺'}\n"
-            f"- {points[2] if len(points) > 2 else '是不是方便带走'}\n\n"
-            f"{voice_hint} 不把它说成万能解决方案，只记录一次更轻便的饮用选择。"
+            f"{product}｜我会放进办公室冰箱的一瓶\n\n"
+            f"最近试到一瓶更适合工作日节奏的燕麦拿铁：不是甜腻那挂，黑芝麻香气会比较明显。\n\n"
+            f"我会把它放在这几个时刻：\n"
+            f"- 早上来不及认真吃早餐\n"
+            f"- 下午三四点开始犯困\n"
+            f"- 运动后想喝点轻一点的东西\n\n"
+            f"比较打动我的是 {point_line}。{voice_hint} 不把它说成万能饮品，单纯记录一个更方便的日常选择。"
         ),
         "bilibili": (
-            f"标题：我们为什么做「{product}」？一次新品背后的真实拆解\n\n"
+            f"标题：把「{product}」拆开看看：它到底适合谁？\n\n"
             f"本期看点：\n"
-            f"1. 这瓶饮品对应哪些真实场景：{scene_line}\n"
-            f"2. {point_line} 到底怎么被用户感知\n"
-            f"3. 新品上线前，我们还需要听到哪些反馈\n\n"
-            f"结尾互动：你更在意口味、配料还是饮用场景？弹幕和评论区都可以聊。"
+            f"1. 为什么黑芝麻 + 燕麦拿铁会成为这次新品方向\n"
+            f"2. 低糖、高纤维和轻负担这些词，用户真正能感知到什么\n"
+            f"3. 早餐、下午犯困、运动后这三类场景里，它有没有真实使用价值\n\n"
+            f"视频结构：先看包装和配料信息，再做试喝记录，最后聊适合人群和不适合的期待。\n\n"
+            f"弹幕问题：你更在意饮品的口味、配料，还是喝起来省不省事？"
         ),
         "douyin": (
-            f"开头 3 秒：早餐来不及、下午犯困、健身后想补点东西？\n"
-            f"镜头 1：拿出「{product}」，展示冷藏即饮和包装。\n"
-            f"镜头 2：切到 {scene_line} 三个使用场景。\n"
-            f"口播：它的重点是 {point_line}，不是夸张承诺，是让日常多一个顺手选择。\n"
-            f"收尾：想看真实试喝反馈，关注下一条。"
+            f"开头 3 秒：早上来不及、下午困到发呆，冰箱里拿一瓶就能走。\n"
+            f"镜头 1：打开冷藏柜，拿出「{product}」。\n"
+            f"镜头 2：近景展示黑芝麻色泽和即饮包装。\n"
+            f"口播：它主打 {point_line}，不是把饮品说成神器，而是给忙碌日常多一个顺手选择。\n"
+            f"收尾：下一条做真实试喝，看看香气和甜度到底怎么样。"
         ),
         "kuaishou": (
-            f"说人话版：这次新品「{product}」就是给日常忙、但又想喝得轻一点的人准备的。\n"
-            f"真实场景：{scene_line}。\n"
-            f"别讲太玄，重点就三个：{point_line}。\n"
-            f"后面会继续更新真实试喝和用户反馈，大家有想问的也可以直接留言。"
+            f"说人话版：这瓶「{product}」就是给日常忙、但又想喝得轻一点的人准备的。\n"
+            f"早上赶时间、下午犯困、运动后不想喝太甜的时候，都能直接从冰箱拿出来。\n"
+            f"重点别讲玄：{point_line}，喝起来方便，信息也讲清楚。\n"
+            f"后面继续更新真实试喝，有想问的直接留言。"
         ),
     }
     selected = platforms or ["weibo", "wechat", "xhs"]
@@ -207,6 +208,17 @@ def _looks_like_raw_echo(text: str, raw_input: str) -> bool:
 
 def _is_platform_native(plat: str, text: str, raw_input: str) -> bool:
     if not str(text).strip() or _looks_like_raw_echo(text, raw_input):
+        return False
+    weak_markers = (
+        "适合：",
+        "场景：",
+        "我会关注的 3 个点",
+        "给忙碌日常的一杯轻负担",
+        "对应哪些真实场景",
+        "一次新品背后的真实拆解",
+        "不把它说成万能解决方案",
+    )
+    if any(marker in str(text) for marker in weak_markers):
         return False
     checks = {
         "weibo": lambda t: "#" in t or "评论" in t,
