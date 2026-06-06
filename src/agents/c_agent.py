@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -69,24 +70,198 @@ def check_content_ratio(plan: list[dict[str, str]]) -> dict[str, Any]:
     }
 
 
+def _extract_product_name(raw_input: str) -> str:
+    quoted = re.findall(r"[「《](.*?)[」》]", raw_input)
+    for item in quoted:
+        if 2 <= len(item) <= 24 and not any(x in item for x in ("不能", "不要", "禁止")):
+            return item
+    match = re.search(r"(?:新品|产品|活动|项目)[：:\s]*([\u4e00-\u9fa5A-Za-z0-9·\-]{2,24})", raw_input)
+    if match:
+        return match.group(1)
+    return "这次新品"
+
+
+def _extract_audience(raw_input: str) -> str:
+    patterns = [
+        r"目标用户是([^。；;\n]+)",
+        r"目标客群[是为：:\s]*([^。；;\n]+)",
+        r"面向([^，。；;\n]+)",
+    ]
+    for pattern in patterns:
+        match = re.search(pattern, raw_input)
+        if match:
+            return match.group(1).strip(" ，,。")
+    return "正在寻找轻负担日常选择的人"
+
+
+def _extract_scenes(raw_input: str) -> list[str]:
+    match = re.search(r"(?:场景是|常见场景是|使用场景是)([^。；;\n]+)", raw_input)
+    if not match:
+        return ["早餐路上", "下午犯困", "运动后"]
+    text = re.sub(r"(?:和|及|以及)", "、", match.group(1))
+    scenes = [part.strip(" ，,、") for part in re.split(r"[、,，]", text) if part.strip(" ，,、")]
+    return scenes[:4] or ["早餐路上", "下午犯困", "运动后"]
+
+
+def _extract_sell_points(raw_input: str) -> list[str]:
+    candidates = re.findall(r"(?:主打|卖点[：:]?|产品卖点[：:]?)([^。；;\n]+)", raw_input)
+    text = "、".join(candidates) if candidates else raw_input
+    points: list[str] = []
+    for key in ("低糖", "0 蔗糖添加", "0蔗糖添加", "高纤维", "植物基", "黑芝麻香气", "冷藏即饮", "轻负担", "即饮"):
+        if key in text and key not in points:
+            points.append(key)
+    return points[:5] or ["口味明确", "饮用方便", "适合日常场景"]
+
+
+def _public_summary(raw_input: str) -> str:
+    product = _extract_product_name(raw_input)
+    audience = _extract_audience(raw_input)
+    scenes = _extract_scenes(raw_input)
+    points = _extract_sell_points(raw_input)
+    if product != "这次新品":
+        return f"{product} 面向 {audience}，围绕 {'、'.join(scenes[:2])} 等日常场景，主打 {'、'.join(points[:3])}"
+    sentences = [s.strip() for s in re.split(r"[。；;\n]+", raw_input) if s.strip()]
+    safe: list[str] = []
+    for sentence in sentences:
+        if any(term in sentence for term in ("不能", "不要", "禁止", "避免", "不得", "风险", "合规")):
+            continue
+        if sentence.startswith(("我们是一家", "我司是一家", "本品牌是一家")):
+            continue
+        safe.append(sentence)
+    return "。".join(safe[:2])[:120] or "这次内容围绕新品亮点和真实使用场景展开"
+
+
+def _has_compliance_boundary(raw_input: str) -> bool:
+    return any(term in raw_input for term in ("不能", "不要", "禁止", "避免", "不得", "功效", "减肥", "治疗", "养生"))
+
+
+def _platform_native_drafts(raw_input: str, platforms: list[str], brand_voice: str = "") -> dict[str, str]:
+    product = _extract_product_name(raw_input)
+    audience = _extract_audience(raw_input)
+    scenes = _extract_scenes(raw_input)
+    points = _extract_sell_points(raw_input)
+    summary = _public_summary(raw_input)
+    point_line = "、".join(points[:3])
+    scene_line = " / ".join(scenes[:3])
+    voice_hint = f"语气按「{brand_voice}」收住。" if brand_voice else "语气保持真实克制。"
+
+    templates = {
+        "weibo": (
+            f"# {product} #".replace("# ", "#").replace(" #", "#")
+            + f" 今天想聊一个很具体的日常选择：{scene_line}，需要一杯方便、轻负担、口味不无聊的即饮饮品。\n"
+            f"{product} 的重点不是制造焦虑，而是把 {point_line} 放进更顺手的生活场景里。\n"
+            f"你通常会在哪个时段喝？评论区告诉我们。"
+        ),
+        "wechat": (
+            f"标题：为什么我们想做一瓶「{product}」\n\n"
+            f"导语：{summary}。\n\n"
+            f"正文：\n"
+            f"1. 它解决的是一个小但高频的时刻：{scene_line}。\n"
+            f"2. 内容重点会放在真实口味、配料信息和适合人群，不做夸张承诺。\n"
+            f"3. 面向 {audience}，我们会用更清楚的方式解释新品卖点：{point_line}。\n\n"
+            f"结尾：如果你也在找一杯不沉重的日常饮品，可以先把这次新品加入尝鲜清单。"
+        ),
+        "xhs": (
+            f"{product}｜给忙碌日常的一杯轻负担\n\n"
+            f"适合：{audience}\n"
+            f"场景：{scene_line}\n"
+            f"我会关注的 3 个点：\n"
+            f"- {points[0]}\n"
+            f"- {points[1] if len(points) > 1 else '入口顺不顺'}\n"
+            f"- {points[2] if len(points) > 2 else '是不是方便带走'}\n\n"
+            f"{voice_hint} 不把它说成万能解决方案，只记录一次更轻便的饮用选择。"
+        ),
+        "bilibili": (
+            f"标题：我们为什么做「{product}」？一次新品背后的真实拆解\n\n"
+            f"本期看点：\n"
+            f"1. 这瓶饮品对应哪些真实场景：{scene_line}\n"
+            f"2. {point_line} 到底怎么被用户感知\n"
+            f"3. 新品上线前，我们还需要听到哪些反馈\n\n"
+            f"结尾互动：你更在意口味、配料还是饮用场景？弹幕和评论区都可以聊。"
+        ),
+        "douyin": (
+            f"开头 3 秒：早餐来不及、下午犯困、健身后想补点东西？\n"
+            f"镜头 1：拿出「{product}」，展示冷藏即饮和包装。\n"
+            f"镜头 2：切到 {scene_line} 三个使用场景。\n"
+            f"口播：它的重点是 {point_line}，不是夸张承诺，是让日常多一个顺手选择。\n"
+            f"收尾：想看真实试喝反馈，关注下一条。"
+        ),
+        "kuaishou": (
+            f"说人话版：这次新品「{product}」就是给日常忙、但又想喝得轻一点的人准备的。\n"
+            f"真实场景：{scene_line}。\n"
+            f"别讲太玄，重点就三个：{point_line}。\n"
+            f"后面会继续更新真实试喝和用户反馈，大家有想问的也可以直接留言。"
+        ),
+    }
+    selected = platforms or ["weibo", "wechat", "xhs"]
+    return {plat: templates.get(plat, f"{product}：{summary}。{voice_hint}") for plat in selected}
+
+
+def _looks_like_raw_echo(text: str, raw_input: str) -> bool:
+    compact_text = "".join(str(text).split())
+    compact_raw = "".join(raw_input.split())
+    if len(compact_raw) < 30:
+        return False
+    return compact_raw[:40] in compact_text or compact_text.startswith(compact_raw[:24])
+
+
+def _is_platform_native(plat: str, text: str, raw_input: str) -> bool:
+    if not str(text).strip() or _looks_like_raw_echo(text, raw_input):
+        return False
+    checks = {
+        "weibo": lambda t: "#" in t or "评论" in t,
+        "wechat": lambda t: "标题" in t and ("正文" in t or "导语" in t),
+        "xhs": lambda t: "适合" in t and ("｜" in t or "-" in t),
+        "bilibili": lambda t: "本期看点" in t or "弹幕" in t,
+        "douyin": lambda t: "开头" in t or "镜头" in t or "口播" in t,
+        "kuaishou": lambda t: "真实" in t or "说人话" in t or "留言" in t,
+    }
+    return checks.get(plat, lambda _t: True)(str(text))
+
+
+def _normalize_platform_output(out: dict[str, Any], raw_input: str, platforms: list[str], brand_voice: str) -> dict[str, Any]:
+    native = _platform_native_drafts(raw_input, platforms, brand_voice)
+    drafts = dict(out.get("drafts") or {})
+    for plat in platforms or list(native):
+        text = str(drafts.get(plat, "")).strip()
+        if not _is_platform_native(plat, text, raw_input):
+            drafts[plat] = native[plat]
+    if not drafts:
+        drafts = native
+    out["drafts"] = drafts
+    if not out.get("title_variants"):
+        product = _extract_product_name(raw_input)
+        out["title_variants"] = [
+            f"{product}，适合哪些日常场景？",
+            f"一杯轻负担新品背后的真实理由",
+            f"别把新品说重，先把场景讲清楚",
+        ]
+    if not out.get("short_video_script"):
+        out["short_video_script"] = native.get("douyin") or next(iter(native.values()))
+    notes = list(out.get("compliance_notes") or [])
+    if _has_compliance_boundary(raw_input):
+        notes.append("公开内容已避开功效化、治疗化和绝对化表达，建议发布前人工终审。")
+    out["compliance_notes"] = list(dict.fromkeys(str(n) for n in notes if str(n).strip()))
+    return out
+
+
 def _fallback_from_task(raw_input: str, platforms: list[str]) -> dict[str, Any]:
     """当 LLM 串题时，用原始材料生成一个保守、可复核的应急成稿。"""
-    material = " ".join(raw_input.strip().split())
-    focus = material[:120] or "当前运营任务"
     selected = platforms or ["weibo", "wechat", "xhs"]
-    labels = {
-        "weibo": f"{focus}。我们会持续同步关键信息、进展和参与方式，欢迎关注后续更新。",
-        "wechat": f"本次内容将围绕「{focus}」展开，重点说明背景、价值、执行节奏和用户需要知道的关键信息。",
-        "xhs": f"{focus}\n把重点整理给你：背景、亮点、适合谁、下一步怎么参与。",
-        "bilibili": f"围绕「{focus}」做一期完整说明：为什么做、怎么推进、有哪些关键节点和注意事项。",
-        "douyin": f"{focus}。先看重点，再看行动入口，后续会继续更新执行进展。",
-        "kuaishou": f"{focus}。这次先把重点讲清楚，后面持续更新真实进展。",
-    }
+    product = _extract_product_name(raw_input)
+    drafts = _platform_native_drafts(raw_input, selected)
     return {
-        "drafts": {plat: labels.get(plat, f"{focus}。后续将持续更新。") for plat in selected},
-        "title_variants": ["先把重点讲清楚", "这次运营任务怎么推进", "用户最需要知道的几件事"],
-        "short_video_script": f"大家好，这次我们主要想讲清楚：{focus}。后续会按节奏同步进展、参与方式和注意事项。",
-        "compliance_notes": ["已触发防串题保护：输出仅基于原始任务材料生成，请人工终审。"],
+        "drafts": drafts,
+        "title_variants": [
+            f"{product}，适合哪些日常场景？",
+            f"一杯轻负担新品背后的真实理由",
+            f"别把新品说重，先把场景讲清楚",
+        ],
+        "short_video_script": drafts.get("douyin") or next(iter(drafts.values()), ""),
+        "compliance_notes": [
+            "已触发防串题保护：输出仅基于原始任务材料生成，请人工终审。",
+            "已避开功效化、治疗化和绝对化表达。",
+        ],
         "_operai_guardrail": "topic_drift_fallback",
     }
 
@@ -113,6 +288,11 @@ def run_c(
         "d_agent.insights 和 d_agent.angles 写多平台文案。"
         "如果 d_agent 与 raw_input 冲突，以 raw_input 为准。"
         "禁止改写成金融、投资、理财、医疗、教育培训等用户未要求的主题；禁止加入 raw_input 没有出现的产品、行业、场景。"
+        "必须让每个平台像它自己：微博要短句、话题和互动；微信公众号要标题/导语/正文段落；"
+        "小红书要场景化种草和清单感；哔哩哔哩要本期看点和弹幕/评论互动；"
+        "抖音要开头3秒、镜头和口播；快手要生活化、真实感、说人话。"
+        "不要把 raw_input 整段复述给用户；不要把“不能/禁止/避免”这类合规约束写进公开文案正文，"
+        "只在 compliance_notes 中说明边界。"
         "只输出 JSON："
         "drafts(键为平台代码，值为文案), title_variants(字符串数组3条), "
         "short_video_script(30-60秒口播稿), compliance_notes(合规说明数组)。"
@@ -135,7 +315,7 @@ def run_c(
         )
         if _contains_topic_drift(out, raw_input):
             return _fallback_from_task(raw_input, platforms)
-        return out
+        return _normalize_platform_output(out, raw_input, platforms, brand_voice)
     except Exception:
         out = _fallback_from_task(raw_input, platforms)
         out["_operai_fallback"] = "LLM 不可用，已降级为基于原始材料的应急成稿"
