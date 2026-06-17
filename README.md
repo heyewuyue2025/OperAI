@@ -5,11 +5,6 @@
 
 ![OperAI 首页](assets/operai-homepage.png)
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-111111?style=flat-square)
-![Streamlit](https://img.shields.io/badge/Streamlit-Workbench-c83a2a?style=flat-square)
-![License](https://img.shields.io/badge/License-MIT-74685a?style=flat-square)
-![Skills](https://img.shields.io/badge/Skills-52-2f6fdd?style=flat-square)
-
 OperAI Harness 不是一个普通聊天窗口，也不是单纯的文案生成器。它围绕真实运营团队的岗位分工，将任务理解、能力选择、上下文传递、运行档案、质量检验和交付导出串成一条 Harness 链路，让团队的运营方法可以沉淀、复核和持续迭代。
 
 ## 为什么做
