@@ -3,6 +3,8 @@
 > 面向企业运营团队的智能运营编排系统。  
 > 把运营需求从「临时问 AI」变成「按职能进入、按 Skill 编排、按质量检验交付」的可复用工作流。
 
+![OperAI 首页](assets/operai-homepage.png)
+
 ![Python](https://img.shields.io/badge/Python-3.10%2B-111111?style=flat-square)
 ![Streamlit](https://img.shields.io/badge/Streamlit-Workbench-c83a2a?style=flat-square)
 ![License](https://img.shields.io/badge/License-MIT-74685a?style=flat-square)
