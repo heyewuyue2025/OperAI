@@ -1,208 +1,126 @@
-# OperAI Harness
+<div align="center">
 
-> 面向企业运营团队的智能运营编排系统。  
-> 把运营需求从「临时问 AI」变成「按职能进入、按 Skill 编排、按质量检验交付」的可复用工作流。
+<img src="assets/operai-homepage.png" alt="OperAI" width="100%" />
 
-![OperAI 首页](assets/operai-homepage.png)
+# 🤖 OperAI · 智能运营编排系统
 
-OperAI Harness 不是一个普通聊天窗口，也不是单纯的文案生成器。它围绕真实运营团队的岗位分工，将任务理解、能力选择、上下文传递、运行档案、质量检验和交付导出串成一条 Harness 链路，让团队的运营方法可以沉淀、复核和持续迭代。
+### 让运营，从"随机问 AI"变成"可复用的工业化流程"
 
-## 为什么做
+_不是又一个聊天窗口，而是一条把任务理解 → 能力调度 → 质量检验 → 交付沉淀串起来的 Harness 流水线。_
 
-企业运营每天处理的是一组混合型工作：活动策划、内容生产、渠道排期、用户分层、增长投放、产品反馈、社群互动和市场策略。传统 AI 对话很容易把所有问题都回答成「一段文案」，但真实运营需要的是清晰的方案、可执行的动作、证据和风险边界。
+<br/>
 
-OperAI 的设计目标是让运营人员先选择自己的职能场景，再由系统自动编排合适的 Skill 和智能体，而不是要求用户理解底层模型、Prompt 或工程链路。
+![Python](https://img.shields.io/badge/Python-3.10+-3776AB.svg?style=flat-square&logo=python&logoColor=white)
+![Streamlit](https://img.shields.io/badge/UI-Streamlit-FF4B4B.svg?style=flat-square&logo=streamlit&logoColor=white)
+![FastAPI](https://img.shields.io/badge/Service-FastAPI-009688.svg?style=flat-square&logo=fastapi&logoColor=white)
+![Agents](https://img.shields.io/badge/智能体-10-8957e5.svg?style=flat-square)
+![Skills](https://img.shields.io/badge/Skill-52-2ea44f.svg?style=flat-square)
+![Harness](https://img.shields.io/badge/编排-Harness%20DAG-f9826c.svg?style=flat-square)
+![License](https://img.shields.io/badge/License-MIT-3fb950.svg?style=flat-square)
 
-## 产品能力
+[核心理念](#-核心理念) · [架构](#-系统架构) · [能力矩阵](#-能力矩阵) · [快速开始](#-快速开始) · [目录结构](#-目录结构)
 
-| 模块 | 说明 |
-| --- | --- |
-| 8 个职能入口 | 内容运营、用户运营、活动运营、渠道运营、增长投放、产品运营、社群运营、市场策略 |
-| 10 个运营智能体 | 覆盖数据洞察、内容、用户、活动、渠道、增长、市场、产品、社群、交易等判断 |
-| 52 个可组合 Skill | 将公司级运营知识拆成可推荐、可组合、可扩展的能力单元 |
-| Harness 编排引擎 | 根据职能和任务材料自动选择 Skill，安排执行顺序并传递上下文 |
-| 质量检验 | 检查证据覆盖、风险边界、平台适配、交付完整度和表达口径 |
-| Skill Studio | 预留自定义 Skill 入口，方便团队沉淀自己的运营方法 |
-| API 配置面板 | 支持 DeepSeek、OpenAI 及其他 OpenAI-compatible 模型服务 |
+</div>
 
-## 工作流
+---
+
+## 💡 核心理念
+
+企业运营的痛点从来不是"AI 不会写"，而是——
+
+> **任务五花八门、标准无法统一、经验留不下来。** 今天问 AI 写条小红书，明天又从零开始，方法论散落在每个人的聊天记录里。
+
+**OperAI** 把真实运营岗位的分工固化成系统：**8 大职能入口**引导需求 → **Harness 编排引擎**自动匹配 **52 个 Skill** 与 **10 个专业智能体** → 经过**质量检验网关** → 交付含证据摘录、风险提醒与执行动作的标准化方案。运营方法论，第一次可以在团队里**沉淀、复用、迭代**。
+
+---
+
+## 🏗️ 系统架构
 
 ```mermaid
 flowchart LR
-    A["职能入口"] --> B["任务材料"]
-    B --> C["Skill Registry"]
-    C --> D["Harness Run"]
-    D --> E["质量检验"]
-    E --> F["运行档案"]
-    E --> G["交付导出"]
+    A[👤 运营需求] --> B[8 大职能入口<br/>内容·用户·活动·渠道<br/>增长·产品·社群·策略]
+    B --> C{Harness 编排引擎<br/>DAG Runner}
+    C --> D[Skill Registry<br/>52 × SkillSpec]
+    C --> E[Plugin Registry<br/>10 运营智能体]
+    D & E --> F[HarnessContext<br/>上游输出自动注入]
+    F --> G[✅ Verify Gate<br/>敏感词·一致性·复核]
+    G --> H[📦 交付导出<br/>Markdown / Word + 运行档案]
+    G -. 不达标回流 .-> C
 ```
 
-## 页面入口
+- **编排引擎** `src/harness/dag_runner.py`：按 DAG 顺序调用 Agent，自动把前序输出注入当前 `HarnessContext`。
+- **注册机制**：Agent 经 `plugin_registry.py` 解耦注册；Skill 在 `skill_registry.py` 以 `SkillSpec` 集中管理。
+- **数据基座**：SQLite 记录任务状态与运行档案，`role_deliverables.py` 定义各职能的交付模型与质量锚点。
 
-本项目包含两个本地服务：
+---
 
-- 产品首页：`http://127.0.0.1:8080`
-- Harness 工作台：`http://127.0.0.1:8501`
+## 🧩 能力矩阵
 
-首页由 `frontend/` 提供，工作台由 Streamlit 提供。
+| 模块 | 内容 |
+| :--- | :--- |
+| 🚪 **8 大职能入口** | 内容运营 · 用户运营 · 活动运营 · 渠道运营 · 增长投放 · 产品运营 · 社群运营 · 市场策略 |
+| 🤝 **10 个运营智能体** | 按维度分工（数据 D / 内容 C / 用户 U …），各司逻辑判断与生产 |
+| 🛠️ **52 个标准化 Skill** | 从"人群分层"到"SEO 关键词地图"，每个都有明确输入输出契约 |
+| 🔀 **Harness 编排引擎** | 基于 DAG 的多智能体协作，自动上下文注入与任务链编排 |
+| 🛡️ **质量检验网关** | 敏感词扫描 + 跨平台一致性 + 人工复核，输出可直接上会 |
+| 🎛️ **Skill Studio** | 团队自定义扩展 Skill，把私域运营经验变成系统能力 |
+| 📤 **多格式交付** | 生成运行档案，一键导出 Markdown / Word 交付物包 |
 
-## 快速开始
+---
 
-### 1. 安装依赖
+## 🚀 快速开始
 
-```powershell
-cd operai-mvp
+```bash
+# 1. 安装依赖
 pip install -r requirements.txt
-```
 
-如需使用锁定版本：
+# 2. 启动前端（Streamlit）
+streamlit run app.py
 
-```powershell
-pip install -r requirements.lock
-```
-
-### 2. 配置环境变量
-
-复制示例配置：
-
-```powershell
-Copy-Item .env.example .env
-```
-
-`.env` 示例：
-
-```env
-OPENAI_API_KEY=
-OPENAI_BASE_URL=https://api.deepseek.com
-OPENAI_MODEL=deepseek-v4-pro
-OPERAI_MOCK=1
-```
-
-说明：
-
-- 不填写 `OPENAI_API_KEY` 时，系统会使用 Mock / 规则路径，适合离线演示和本地测试。
-- 填写 `OPENAI_API_KEY` 后，会调用 OpenAI-compatible 接口。
-- `OPERAI_MOCK=1` 可强制使用本地 Mock。
-- 请不要把真实 `.env` 提交到公开仓库。
-
-### 3. 启动服务
-
-推荐一键启动：
-
-```powershell
-.\start.ps1
-```
-
-也可以手动启动：
-
-```powershell
-# Streamlit 工作台
-python -m streamlit run app.py
-
-# 产品首页
+# 3. （可选）启动后端服务
 python serve.py
 ```
 
-## 测试
+> 配置项见 `config.yaml`；Windows 用户可直接运行 `start.ps1`。
 
-```powershell
-$env:OPERAI_MOCK="1"
-python -m pytest -q
-```
+---
 
-当前测试覆盖：
-
-- Agent 输出契约
-- Harness DAG 执行
-- Skill Registry
-- 职能交付物模型
-- 中文标签显示
-- 输出渲染布局兜底
-- 敏感词与质量检验
-- Markdown / Word 导出
-
-## 目录结构
+## 📂 目录结构
 
 ```text
-operai-mvp/
-├─ app.py                         # Streamlit Harness 工作台
-├─ serve.py                       # 产品首页本地服务
-├─ start.ps1                      # Windows 一键启动脚本
-├─ config.yaml                    # 运行时配置
-├─ frontend/                      # 产品首页与视觉系统
-├─ src/
-│  ├─ agents/                     # 10 个运营智能体
-│  ├─ harness/                    # Skill Registry、DAG Runner、质量检验
-│  ├─ storage/                    # 本地存储
-│  ├─ role_deliverables.py        # 8 个职能入口与交付物模型
-│  ├─ render_output.py            # 输出结果渲染
-│  ├─ display_labels.py           # 内部字段中文化
-│  └─ voice_styles.py             # 50 个表达风格预设
-├─ tests/                         # 自动化测试
-├─ docs/                          # 设计与实现文档
-└─ packs/                         # 兼容层配置
+OperAI/
+├── app.py                    # Streamlit 前端入口
+├── serve.py                  # FastAPI 后端服务
+├── src/
+│   ├── harness/dag_runner.py # Harness 编排引擎（DAG + 上下文注入）
+│   ├── plugin_registry.py    # 10 个智能体注册
+│   ├── skill_registry.py     # 52 个 SkillSpec 集中管理
+│   └── role_deliverables.py  # 各职能交付模型与质量锚点
+├── packs/ config/            # Skill 包与配置
+├── docs/ tools/ tests/       # 文档 / 工具 / 测试
+└── config.yaml               # 全局配置
 ```
 
-## 关键模块
+---
 
-### Harness + Skill
+## 🎯 典型场景
 
-- `src/harness/skill_registry.py`：内置运营 Skill，支持推荐与自定义 Skill 保存。
-- `src/role_deliverables.py`：定义 8 个职能入口及其默认交付物。
-- `src/harness/dag_runner.py`：顺序执行智能体插件，并注入上游上下文。
-- `src/harness/verify_gate.py`：质量检验与风险复核。
+- **新品发布** → 生成适配小红书、公众号等多平台的差异化内容方案
+- **用户召回** → 基于流失信号自动设计分层触达与奖励裂变
+- **活动落地** → 把预算与目标转化为含执行节奏与风险预案的活动结构
 
-### Agent 集群
+---
 
-`src/agents/` 中包含 10 个运营智能体：
+## 📄 许可证
 
-| 代号 | 职责 |
-| --- | --- |
-| D | 数据与材料洞察 |
-| C | 内容运营 |
-| U | 用户运营 |
-| A | 活动运营 |
-| N | 渠道运营 |
-| F | 流量 / 增长 |
-| M | 市场策略 |
-| P | 产品运营 |
-| S | 社群运营 |
-| E | 交易运营 |
+[MIT License](LICENSE)
 
-### 前端体验
+<div align="center">
 
-- `frontend/index.html`：产品首页。
-- `frontend/styles.css`：首页视觉系统。
-- `frontend/streamlit-theme.css`：Streamlit 工作台深度美化样式。
-- `frontend/main.js`：滚动、鼠标与页面动效。
+<br/>
 
-## API 与模型配置
+_从 Chat 到 Harness——让每一次运营，都留下可复用的资产。_ ⚙️
 
-OperAI 使用 OpenAI-compatible 协议，可以接入 DeepSeek、OpenAI 或其他兼容服务。
+**觉得有用？点一颗 ⭐ 支持一下！**
 
-基础配置：
-
-```env
-OPENAI_API_KEY=your-api-key
-OPENAI_BASE_URL=https://api.deepseek.com
-OPENAI_MODEL=deepseek-v4-pro
-```
-
-工作台的「运行设置」页也提供 API 信息配置入口，便于临时切换模型服务。
-
-## 开源安全
-
-本仓库不会提交：
-
-- `.env`
-- 本地数据库 `data/operai.sqlite3`
-- 运行日志 `data/logs/`
-- Python 缓存 `__pycache__/`
-- Pytest 缓存 `.pytest_cache/`
-- Streamlit 本地密钥 `.streamlit/secrets.toml`
-
-如果你 fork 或二次开发，请确认不要把真实 API Key、用户数据和运行日志上传到公开仓库。
-
-## License
-
-MIT License
+</div>
